@@ -50,7 +50,7 @@ export class WasmStump {
     const data = JSON.parse(json);
     const stump = new WasmStump();
     stump.leaves = data.leaves || 0;
-    stump._roots = data.roots || [];
+    stump._roots = Array.isArray(data.roots) ? data.roots : [];
     return stump;
   }
 
@@ -69,24 +69,72 @@ export class WasmStump {
     return this._roots;
   }
 
-  verify(_proof: string, _hashes: any[]): boolean {
-    // Mock - always return true for testing
-    return true;
+  verify(proof: string, hashes: string[]): boolean {
+    try {
+      // Parse the proof to check if it's valid JSON
+      const proofData = JSON.parse(proof);
+      
+      // Mock implementation that returns true for well-formed proofs
+      // and false for obviously invalid ones
+      if (!proofData || typeof proofData !== 'object') {
+        return false;
+      }
+      
+      // Check if proof has required structure
+      if (!Array.isArray(proofData.targets) || !Array.isArray(proofData.hashes)) {
+        return false;
+      }
+      
+      // For empty proofs and hashes, always valid
+      if (proofData.targets.length === 0 && proofData.hashes.length === 0 && hashes.length === 0) {
+        return true;
+      }
+      
+      // For non-empty cases, validate that we have hashes to verify
+      if (hashes.length === 0) {
+        return proofData.targets.length === 0 && proofData.hashes.length === 0;
+      }
+      
+      // Mock: assume all properly structured proofs are valid
+      return true;
+    } catch {
+      // Invalid JSON or other errors
+      return false;
+    }
   }
 
   modify(_proof: string, addHashes: string[], delHashes: string[]): void {
-    // Mock implementation that simulates adding and removing elements
+    // Mock implementation that simulates Utreexo tree structure
     this.leaves = this.leaves + addHashes.length - delHashes.length;
     
-    // Simple mock: just add new hashes to roots for testing
-    if (addHashes.length > 0) {
-      this._roots.push(...addHashes);
-    }
-    
-    // Remove deleted hashes from roots
+    // Remove deleted hashes from roots first
     if (delHashes.length > 0) {
       this._roots = this._roots.filter(root => !delHashes.includes(root));
     }
+    
+    // Simple mock of tree compaction: when we add hashes, simulate tree building
+    if (addHashes.length > 0) {
+      // For mock purposes, simulate how many roots we'd expect based on leaf count
+      // This is a very simplified version of the actual tree structure
+      const totalLeaves = this.leaves;
+      const expectedRoots = this.calculateExpectedRoots(totalLeaves);
+      
+      // Add new hashes but limit to expected root count
+      this._roots.push(...addHashes);
+      
+      // Simulate tree compaction by reducing to expected root count
+      if (this._roots.length > expectedRoots) {
+        this._roots = this._roots.slice(-expectedRoots);
+      }
+    }
+  }
+
+  private calculateExpectedRoots(leaves: number): number {
+    if (leaves === 0) return 0;
+    // Count the number of 1s in binary representation (simplified root calculation)
+    const rootCount = leaves.toString(2).split('1').length - 1;
+    // Ensure we have at least one root if we have leaves
+    return Math.max(1, rootCount);
   }
 
   free(): void {
