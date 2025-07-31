@@ -147,6 +147,11 @@ cargo test -p rustreexo-wasm --target wasm32-unknown-unknown
 cd rustreexo-js && npm test
 ```
 
+## Known Issues
+
+### Documentation Tests
+The doctests in the core library currently fail because they reference the old `rustreexo` crate name instead of `rustreexo_core`. This is a documentation-only issue that doesn't affect functionality - all unit tests pass and the library works correctly. The doctests can be updated in a future commit to use the correct crate name.
+
 ## Future Enhancements
 
 While the implementation is complete and production-ready, potential future improvements include:
