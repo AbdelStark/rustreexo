@@ -19,7 +19,7 @@ const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center px-4 py-2 rounded-full glass-effect border border-bitcoin-500/20 text-bitcoin-400 text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
-              Reference Implementation
+              Rust Implementation
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-50 mb-6 leading-tight">

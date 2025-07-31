@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Reference implementation of the Utreexo accumulator specification.
+              Implementation of the Utreexo accumulator specification.
               Built with Rust, compiled to WebAssembly.
             </p>
             <div className="flex items-center space-x-3">
