@@ -39,6 +39,8 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   useEffect(() => {
     const initAccumulators = async () => {
       try {
+        // The WASM module will be automatically initialized by the SDK
+        
         const stumpInstance = await Stump.create();
         const pollardInstance = await Pollard.create();
         
@@ -228,11 +230,11 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <div className="p-4 bg-dark-700 rounded-lg">
+            <div className="p-4 bg-slate-700 rounded-lg">
               <div className="text-sm text-gray-400 mb-1">Leaf Count</div>
               <div className="text-2xl font-mono text-bitcoin-400">{currentState.leaves}</div>
             </div>
-            <div className="p-4 bg-dark-700 rounded-lg">
+            <div className="p-4 bg-slate-700 rounded-lg">
               <div className="text-sm text-gray-400 mb-1">Root Count</div>
               <div className="text-2xl font-mono text-bitcoin-400">{currentState.roots.length}</div>
             </div>
@@ -284,7 +286,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
                   value={newHashInput}
                   onChange={(e) => setNewHashInput(e.target.value)}
                   placeholder="Enter 64-character hex hash..."
-                  className="flex-1 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-gray-100 text-sm font-mono focus:outline-none focus:border-bitcoin-500"
+                  className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-gray-100 text-sm font-mono focus:outline-none focus:border-bitcoin-500"
                 />
                 <button
                   onClick={generateRandomHash}
@@ -336,7 +338,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
                 value={proofData}
                 onChange={(e) => setProofData(e.target.value)}
                 placeholder="Paste proof data here or generate one..."
-                className="w-full h-24 px-3 py-2 bg-dark-700 border border-dark-600 rounded-lg text-gray-100 text-xs font-mono resize-none focus:outline-none focus:border-bitcoin-500"
+                className="w-full h-24 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-gray-100 text-xs font-mono resize-none focus:outline-none focus:border-bitcoin-500"
               />
             </div>
 

@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="relative bg-dark-900 border-t border-dark-700">
+    <footer className="relative bg-slate-900 border-t border-slate-700">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
       
@@ -137,7 +137,7 @@ const Footer: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="pt-8 border-t border-dark-700 flex flex-col md:flex-row items-center justify-between"
+          className="pt-8 border-t border-slate-700 flex flex-col md:flex-row items-center justify-between"
         >
           <div className="text-sm text-gray-400 mb-4 md:mb-0">
             <p>

@@ -54,7 +54,7 @@ const EducationSection: React.FC = () => {
   ];
 
   return (
-    <section id="education" className="py-20 px-4 sm:px-6 lg:px-8 bg-dark-800/30">
+    <section id="education" className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-800/30">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -121,7 +121,7 @@ const EducationSection: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center p-6 rounded-lg bg-dark-700/50 border border-dark-600 hover:border-bitcoin-500/30 transition-all duration-300"
+                className="text-center p-6 rounded-lg bg-slate-700/50 border border-slate-600 hover:border-bitcoin-500/30 transition-all duration-300"
               >
                 <div className="flex justify-center mb-4">
                   {benefit.icon}

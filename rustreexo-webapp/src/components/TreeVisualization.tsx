@@ -293,7 +293,7 @@ const TreeVisualization: React.FC = () => {
           </p>
         </div>
 
-        <div className="relative bg-dark-900 rounded-lg border border-dark-700 overflow-hidden">
+        <div className="relative bg-slate-900 rounded-lg border border-slate-700 overflow-hidden">
           <svg
             width={TREE_WIDTH}
             height={TREE_HEIGHT}
@@ -360,7 +360,7 @@ const TreeVisualization: React.FC = () => {
           </svg>
 
           {/* Legend */}
-          <div className="absolute top-4 right-4 bg-dark-800/90 backdrop-blur-sm rounded-lg p-3 border border-dark-600">
+          <div className="absolute top-4 right-4 bg-slate-800/90 backdrop-blur-sm rounded-lg p-3 border border-slate-600">
             <div className="text-xs text-gray-400 mb-2">Legend</div>
             <div className="space-y-1 text-xs">
               <div className="flex items-center space-x-2">
@@ -386,7 +386,7 @@ const TreeVisualization: React.FC = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mt-4 p-4 bg-dark-700 rounded-lg border border-dark-600"
+              className="mt-4 p-4 bg-slate-700 rounded-lg border border-slate-600"
             >
               {(() => {
                 const node = nodes.find(n => n.id === selectedNode);
