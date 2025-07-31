@@ -7,6 +7,7 @@ import AccumulatorDemo from './components/AccumulatorDemo';
 import TreeVisualization from './components/TreeVisualization';
 import EducationSection from './components/EducationSection';
 import Footer from './components/Footer';
+import DebugPanel from './components/DebugPanel';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'stump' | 'pollard'>('stump');
@@ -103,6 +104,9 @@ function App() {
       </main>
 
       <Footer />
+      
+      {/* Debug Panel - only in development */}
+      {import.meta.env.MODE === 'development' && <DebugPanel />}
     </div>
   );
 }

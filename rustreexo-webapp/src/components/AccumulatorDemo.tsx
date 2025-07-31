@@ -39,30 +39,51 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   useEffect(() => {
     const initAccumulators = async () => {
       try {
-        // The WASM module will be automatically initialized by the SDK
+        console.log('🚀 [WASM] Initializing accumulators...');
         
+        // The WASM module will be automatically initialized by the SDK
+        console.log('🔧 [WASM] Creating Stump instance...');
         const stumpInstance = await Stump.create();
+        console.log('✅ [WASM] Stump.create() -> Success', {
+          leaves: stumpInstance.getLeafCount(),
+          roots: stumpInstance.getRoots()
+        });
+        
+        console.log('🔧 [WASM] Creating Pollard instance...');
         const pollardInstance = await Pollard.create();
+        console.log('✅ [WASM] Pollard.create() -> Success', {
+          leaves: pollardInstance.getLeafCount(),
+          roots: pollardInstance.getRoots()
+        });
         
         setStump(stumpInstance);
         setPollard(pollardInstance);
         
         // Initialize states
-        setStumpState({
+        const stumpState = {
           leaves: stumpInstance.getLeafCount(),
           roots: stumpInstance.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
         
-        setPollardState({
+        const pollardState = {
           leaves: pollardInstance.getLeafCount(),
           roots: pollardInstance.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
+        
+        console.log('📊 [WASM] Initial state:', { stumpState, pollardState });
+        
+        setStumpState(stumpState);
+        setPollardState(pollardState);
       } catch (error) {
-        console.error('Failed to initialize accumulators:', error);
+        console.error('❌ [WASM] Failed to initialize accumulators:', error);
+        console.error('❌ [WASM] Error details:', {
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         setStumpState(prev => ({ ...prev, error: `Initialization failed: ${error}` }));
         setPollardState(prev => ({ ...prev, error: `Initialization failed: ${error}` }));
       }
@@ -72,7 +93,9 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   }, []);
 
   const generateRandomHash = () => {
+    console.log('🎲 [WASM] Generating random hash...');
     const randomHash = utils.randomHash();
+    console.log('✅ [WASM] utils.randomHash() -> Success:', randomHash);
     setNewHashInput(randomHash);
   };
 
@@ -90,31 +113,55 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      console.log(`🔧 [WASM] Adding element to ${activeTab}:`, { hash: newHashInput });
+      
       if (activeTab === 'stump' && stump) {
         // For Stump, we need a proof to add elements. For demo purposes, use empty proof
         const emptyProof = JSON.stringify({ proof: [], targets: [] });
+        console.log('🔧 [WASM] Calling stump.modify() with:', {
+          proof: emptyProof,
+          addHashes: [newHashInput],
+          deleteHashes: []
+        });
+        
         await stump.modify(emptyProof, [newHashInput], []);
         
-        setStumpState({
+        const newState = {
           leaves: stump.getLeafCount(),
           roots: stump.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
+        
+        console.log('✅ [WASM] stump.modify() -> Success. New state:', newState);
+        setStumpState(newState);
       } else if (activeTab === 'pollard' && pollard) {
         // Pollard can add elements directly
-        await pollard.addElements([{ hash: newHashInput, remember: true }]);
+        const additions = [{ hash: newHashInput, remember: true }];
+        console.log('🔧 [WASM] Calling pollard.addElements() with:', additions);
         
-        setPollardState({
+        await pollard.addElements(additions);
+        
+        const newState = {
           leaves: pollard.getLeafCount(),
           roots: pollard.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
+        
+        console.log('✅ [WASM] pollard.addElements() -> Success. New state:', newState);
+        setPollardState(newState);
       }
 
       setNewHashInput('');
     } catch (error) {
+      console.error(`❌ [WASM] Failed to add element to ${activeTab}:`, error);
+      console.error('❌ [WASM] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        input: newHashInput
+      });
+      
       if (activeTab === 'stump') {
         setStumpState(prev => ({ ...prev, isLoading: false, error: `Failed to add: ${error}` }));
       } else {
@@ -124,6 +171,8 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   };
 
   const resetAccumulator = async () => {
+    console.log(`🔄 [WASM] Resetting ${activeTab} accumulator...`);
+    
     if (activeTab === 'stump') {
       setStumpState(prev => ({ ...prev, isLoading: true, error: null }));
     } else {
@@ -132,28 +181,45 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
 
     try {
       if (activeTab === 'stump') {
+        console.log('🔧 [WASM] Creating new Stump instance...');
         const newStump = await Stump.create();
-        setStump(newStump);
-        setStumpState({
+        
+        const newState = {
           leaves: newStump.getLeafCount(),
           roots: newStump.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
+        
+        console.log('✅ [WASM] Stump.create() -> Success. New state:', newState);
+        setStump(newStump);
+        setStumpState(newState);
       } else {
+        console.log('🔧 [WASM] Creating new Pollard instance...');
         const newPollard = await Pollard.create();
-        setPollard(newPollard);
-        setPollardState({
+        
+        const newState = {
           leaves: newPollard.getLeafCount(),
           roots: newPollard.getRoots(),
           isLoading: false,
           error: null
-        });
+        };
+        
+        console.log('✅ [WASM] Pollard.create() -> Success. New state:', newState);
+        setPollard(newPollard);
+        setPollardState(newState);
       }
       
+      console.log('🗑️ [WASM] Clearing proof data and verification results');
       setProofData('');
       setVerificationResult(null);
     } catch (error) {
+      console.error(`❌ [WASM] Failed to reset ${activeTab}:`, error);
+      console.error('❌ [WASM] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
       if (activeTab === 'stump') {
         setStumpState(prev => ({ ...prev, isLoading: false, error: `Failed to reset: ${error}` }));
       } else {
@@ -163,13 +229,19 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   };
 
   const generateProof = async () => {
+    console.log('🔍 [WASM] Generating proof...');
+    
     if (activeTab !== 'pollard' || !pollard) {
+      console.warn('⚠️ [WASM] Proof generation only available for Pollard accumulator');
       alert('Proof generation is only available for Pollard accumulator');
       return;
     }
 
     const roots = pollard.getRoots();
+    console.log('🔧 [WASM] Current Pollard roots:', roots);
+    
     if (roots.length === 0) {
+      console.warn('⚠️ [WASM] No elements in accumulator for proof generation');
       alert('No elements in the accumulator to generate proof for');
       return;
     }
@@ -184,71 +256,178 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
       if (newHashInput.trim() && utils.isValidHash(newHashInput)) {
         // Generate proof for the specified hash
         targetHash = newHashInput;
+        console.log('🔧 [WASM] Calling pollard.generateProof() for specified hash:', targetHash);
         proof = await pollard.generateProof(targetHash);
       } else {
         // Generate proof for the first root as an example
         targetHash = roots[0];
+        console.log('🔧 [WASM] Calling pollard.generateProof() for first root:', targetHash);
         proof = await pollard.generateProof(targetHash);
       }
+      
+      console.log('✅ [WASM] pollard.generateProof() -> Success:', {
+        targetHash,
+        proofLength: proof.length,
+        proofPreview: proof.substring(0, 100) + (proof.length > 100 ? '...' : '')
+      });
       
       setProofData(proof);
       setPollardState(prev => ({ ...prev, isLoading: false }));
       
       alert(`Proof generated for hash: ${targetHash.substring(0, 8)}...${targetHash.substring(56)}`);
     } catch (error) {
+      console.error('❌ [WASM] Proof generation failed:', error);
+      console.error('❌ [WASM] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        targetHash: newHashInput.trim() || 'first root',
+        rootsAvailable: pollard?.getRoots().length || 0
+      });
+      
       setPollardState(prev => ({ ...prev, isLoading: false, error: `Proof generation failed: ${error}` }));
       setProofData(`Error: ${error}`);
     }
   };
 
   const verifyProof = async () => {
+    console.log('✅ [WASM] Verifying proof...');
+    
     if (!proofData.trim()) {
+      console.warn('⚠️ [WASM] No proof data provided for verification');
       alert('Please provide proof data to verify');
       return;
     }
 
     const accumulator = activeTab === 'stump' ? stump : pollard;
-    if (!accumulator) return;
+    if (!accumulator) {
+      console.error('❌ [WASM] No accumulator instance available for verification');
+      return;
+    }
+    
+    console.log('🔧 [WASM] Using accumulator:', activeTab);
+    console.log('🔧 [WASM] Proof data length:', proofData.length);
 
     try {
       // Try to extract target hashes from proof data or use input hash
       let targetHashes: string[] = [];
       
+      console.log('🔧 [WASM] Parsing proof data...');
       try {
         const parsedProof = JSON.parse(proofData);
         targetHashes = parsedProof.targets || [];
-      } catch {
-        // If parsing fails, continue with empty targets
+        console.log('✅ [WASM] Parsed proof structure:', {
+          hasTargets: !!parsedProof.targets,
+          targetsCount: targetHashes.length,
+          hasProofField: !!parsedProof.proof,
+          proofType: typeof parsedProof.proof
+        });
+      } catch (parseError) {
+        console.warn('⚠️ [WASM] Failed to parse proof data as JSON:', parseError);
       }
       
       // If no targets in proof and we have an input hash, use that
       if (targetHashes.length === 0 && newHashInput.trim() && utils.isValidHash(newHashInput)) {
         targetHashes = [newHashInput];
+        console.log('🔧 [WASM] Using input hash as target:', newHashInput);
       }
       
       // If still no targets, try to use one of the roots
       if (targetHashes.length === 0) {
         const roots = accumulator.getRoots();
+        console.log('🔧 [WASM] Current accumulator roots:', roots);
+        
         if (roots.length > 0) {
           targetHashes = [roots[0]];
+          console.log('🔧 [WASM] Using first root as target:', roots[0]);
         } else {
+          console.error('❌ [WASM] No target hashes available for verification');
           setVerificationResult({ valid: false, error: 'No target hashes available for verification' });
           return;
         }
       }
+      
+      console.log('🔧 [WASM] Calling accumulator.verify() with:', {
+        proofDataLength: proofData.length,
+        targetHashes,
+        accumulatorType: activeTab
+      });
 
       const result = await accumulator.verify(proofData, targetHashes);
+      
+      console.log('✅ [WASM] accumulator.verify() -> Result:', result);
       setVerificationResult(result);
     } catch (error) {
+      console.error('❌ [WASM] Proof verification failed:', error);
+      console.error('❌ [WASM] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        proofDataLength: proofData.length,
+        inputHash: newHashInput,
+        accumulatorType: activeTab
+      });
+      
       setVerificationResult({ valid: false, error: `Verification failed: ${error}` });
     }
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+    console.log('📋 [WASM] Copying to clipboard:', { 
+      textLength: text.length, 
+      preview: text.substring(0, 50) + (text.length > 50 ? '...' : '')
+    });
+    navigator.clipboard.writeText(text).then(() => {
+      console.log('✅ [WASM] Successfully copied to clipboard');
+    }).catch((error) => {
+      console.error('❌ [WASM] Failed to copy to clipboard:', error);
+    });
   };
 
   const currentState = activeTab === 'stump' ? stumpState : pollardState;
+  
+  // Log tab changes for debugging
+  useEffect(() => {
+    console.log(`🔄 [WASM] Switched to ${activeTab} tab`, {
+      state: currentState,
+      hasAccumulator: activeTab === 'stump' ? !!stump : !!pollard
+    });
+  }, [activeTab]);
+  
+  // Log input validation
+  useEffect(() => {
+    if (newHashInput.trim()) {
+      const isValid = utils.isValidHash(newHashInput);
+      console.log('🔍 [WASM] Hash input validation:', {
+        input: newHashInput,
+        isValid,
+        length: newHashInput.length
+      });
+    }
+  }, [newHashInput]);
+  
+  // Log proof data changes
+  useEffect(() => {
+    if (proofData.trim()) {
+      console.log('📄 [WASM] Proof data updated:', {
+        length: proofData.length,
+        preview: proofData.substring(0, 100) + (proofData.length > 100 ? '...' : ''),
+        isValidJSON: (() => {
+          try {
+            JSON.parse(proofData);
+            return true;
+          } catch {
+            return false;
+          }
+        })()
+      });
+    }
+  }, [proofData]);
+  
+  // Log verification results
+  useEffect(() => {
+    if (verificationResult) {
+      console.log('✅ [WASM] Verification result updated:', verificationResult);
+    }
+  }, [verificationResult]);
 
   return (
     <div className="space-y-8">
