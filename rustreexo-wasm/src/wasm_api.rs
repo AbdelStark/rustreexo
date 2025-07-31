@@ -21,6 +21,16 @@ impl UtreexoError {
     pub fn message(&self) -> String {
         self.message.clone()
     }
+
+    #[wasm_bindgen(js_name = toString)]
+    pub fn to_string(&self) -> String {
+        self.message.clone()
+    }
+
+    #[wasm_bindgen(js_name = valueOf)]
+    pub fn value_of(&self) -> String {
+        self.message.clone()
+    }
 }
 
 impl From<&str> for UtreexoError {
@@ -150,29 +160,29 @@ impl WasmStump {
     }
 
     #[wasm_bindgen]
-    pub fn modify(&mut self, proof_json: &str, add_hashes: Vec<JsValue>, del_hashes: Vec<JsValue>) -> Result<(), UtreexoError> {
+    pub fn modify(&mut self, proof_json: &str, add_hashes: Vec<JsValue>, del_hashes: Vec<JsValue>) -> Result<(), JsValue> {
         let proof: Proof<BitcoinNodeHash> = serde_json::from_str(proof_json)
-            .map_err(|e| UtreexoError::from(format!("Failed to parse proof JSON: {}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to parse proof JSON: {}", e)))?;
 
-        let add_hashes: Result<Vec<BitcoinNodeHash>, UtreexoError> = add_hashes
+        let add_hashes: Result<Vec<BitcoinNodeHash>, JsValue> = add_hashes
             .into_iter()
             .map(|js_val| {
                 let hex_str = js_val
                     .as_string()
-                    .ok_or_else(|| UtreexoError::from("Hash must be a string"))?;
+                    .ok_or_else(|| JsValue::from_str("Hash must be a string"))?;
                 BitcoinNodeHash::from_str(&hex_str)
-                    .map_err(|e| UtreexoError::from(format!("Invalid hash: {}", e)))
+                    .map_err(|e| JsValue::from_str(&format!("Invalid hash: {}", e)))
             })
             .collect();
 
-        let del_hashes: Result<Vec<BitcoinNodeHash>, UtreexoError> = del_hashes
+        let del_hashes: Result<Vec<BitcoinNodeHash>, JsValue> = del_hashes
             .into_iter()
             .map(|js_val| {
                 let hex_str = js_val
                     .as_string()
-                    .ok_or_else(|| UtreexoError::from("Hash must be a string"))?;
+                    .ok_or_else(|| JsValue::from_str("Hash must be a string"))?;
                 BitcoinNodeHash::from_str(&hex_str)
-                    .map_err(|e| UtreexoError::from(format!("Invalid hash: {}", e)))
+                    .map_err(|e| JsValue::from_str(&format!("Invalid hash: {}", e)))
             })
             .collect();
 
@@ -181,7 +191,7 @@ impl WasmStump {
 
         self.inner
             .modify(&add_hashes, &del_hashes, &proof)
-            .map_err(|e| UtreexoError::from(format!("Failed to modify stump: {}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to modify stump: {}", e)))?;
 
         Ok(())
     }
@@ -295,37 +305,37 @@ impl WasmPollard {
     }
 
     #[wasm_bindgen]
-    pub fn modify(&mut self, proof_json: &str, additions_json: &str, del_hashes: Vec<JsValue>) -> Result<(), UtreexoError> {
+    pub fn modify(&mut self, proof_json: &str, additions_json: &str, del_hashes: Vec<JsValue>) -> Result<(), JsValue> {
         let proof: Proof<BitcoinNodeHash> = serde_json::from_str(proof_json)
-            .map_err(|e| UtreexoError::from(format!("Failed to parse proof JSON: {}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to parse proof JSON: {}", e)))?;
 
         // Parse additions as JSON array of {hash: string, remember: boolean}
         let additions: Vec<serde_json::Value> = serde_json::from_str(additions_json)
-            .map_err(|e| UtreexoError::from(format!("Failed to parse additions JSON: {}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to parse additions JSON: {}", e)))?;
 
-        let add_items: Result<Vec<PollardAddition<BitcoinNodeHash>>, UtreexoError> = additions
+        let add_items: Result<Vec<PollardAddition<BitcoinNodeHash>>, JsValue> = additions
             .into_iter()
             .map(|item| {
                 let hash_str = item["hash"].as_str()
-                    .ok_or_else(|| UtreexoError::from("Addition must have 'hash' field as string"))?;
+                    .ok_or_else(|| JsValue::from_str("Addition must have 'hash' field as string"))?;
                 let remember = item["remember"].as_bool()
                     .unwrap_or(true); // Default to remembering
                 
                 let hash = BitcoinNodeHash::from_str(hash_str)
-                    .map_err(|e| UtreexoError::from(format!("Invalid hash in addition: {}", e)))?;
+                    .map_err(|e| JsValue::from_str(&format!("Invalid hash in addition: {}", e)))?;
                 
                 Ok(PollardAddition { hash, remember })
             })
             .collect();
 
-        let del_hashes: Result<Vec<BitcoinNodeHash>, UtreexoError> = del_hashes
+        let del_hashes: Result<Vec<BitcoinNodeHash>, JsValue> = del_hashes
             .into_iter()
             .map(|js_val| {
                 let hex_str = js_val
                     .as_string()
-                    .ok_or_else(|| UtreexoError::from("Hash must be a string"))?;
+                    .ok_or_else(|| JsValue::from_str("Hash must be a string"))?;
                 BitcoinNodeHash::from_str(&hex_str)
-                    .map_err(|e| UtreexoError::from(format!("Invalid hash: {}", e)))
+                    .map_err(|e| JsValue::from_str(&format!("Invalid hash: {}", e)))
             })
             .collect();
 
@@ -334,7 +344,7 @@ impl WasmPollard {
 
         self.inner
             .modify(&add_items, &del_hashes, proof)
-            .map_err(|e| UtreexoError::from(format!("Failed to modify pollard: {}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to modify pollard: {}", e)))?;
 
         Ok(())
     }

@@ -5,10 +5,10 @@ import { Bitcoin, Github, ExternalLink, Heart, Code, Zap } from 'lucide-react';
 const Footer: React.FC = () => {
   const links = {
     resources: [
+      { name: 'Draft BIP Specification', href: '#', external: false },
       { name: 'Utreexo Paper', href: 'https://eprint.iacr.org/2019/611.pdf', external: true },
-      { name: 'Bitcoin Whitepaper', href: 'https://bitcoin.org/bitcoin.pdf', external: true },
-      { name: 'MIT DCI', href: 'https://dci.mit.edu/', external: true },
-      { name: 'Rust Documentation', href: 'https://doc.rust-lang.org/', external: true },
+      { name: 'Python Implementation', href: 'https://github.com/utreexo/pytreexo', external: true },
+      { name: 'Go Implementation', href: 'https://github.com/utreexo/utreexo', external: true },
     ],
     technical: [
       { name: 'GitHub Repository', href: 'https://github.com/mit-dci/rustreexo', external: true },
@@ -49,8 +49,8 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-400 text-sm mb-4">
-              Experience the future of Bitcoin scaling with Utreexo's revolutionary accumulator technology.
-              Built with Rust, powered by WebAssembly.
+              Reference implementation of the Utreexo accumulator specification.
+              Built with Rust, compiled to WebAssembly.
             </p>
             <div className="flex items-center space-x-3">
               <Code className="w-4 h-4 text-bitcoin-500" />
@@ -141,9 +141,9 @@ const Footer: React.FC = () => {
         >
           <div className="text-sm text-gray-400 mb-4 md:mb-0">
             <p>
-              Built with{' '}
-              <span className="text-bitcoin-500">♥</span>{' '}
-              for the Bitcoin community. Open source and MIT licensed.
+              Implementation follows the draft BIP specification.{' '}
+              <span className="text-bitcoin-500">Open source</span>{' '}
+              under BSD-3-Clause license.
             </p>
           </div>
           

@@ -39,8 +39,8 @@ function App() {
                 </h2>
               </div>
               <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Experience the power of Utreexo accumulators with our live WASM implementation.
-                Try adding and removing UTXOs to see how the accumulator maintains its compact size.
+                Interactive demonstration of the Utreexo accumulator operations using a WebAssembly implementation.
+                Test addition, proof generation, and verification with both Stump and Pollard variants.
               </p>
             </motion.div>
 
@@ -93,8 +93,8 @@ function App() {
                 </h2>
               </div>
               <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-                Watch how Utreexo builds and maintains its Merkle forest structure.
-                Each UTXO becomes a leaf, and the tree grows efficiently as new outputs are added.
+                Visualization of the Merkle forest structure used by the Utreexo accumulator.
+                Shows how elements are positioned according to the binary representation of the leaf count.
               </p>
             </motion.div>
 

@@ -7,48 +7,48 @@ const EducationSection: React.FC = () => {
     {
       icon: <TreePine className="w-6 h-6" />,
       title: "Merkle Forest",
-      description: "A collection of perfect binary trees that efficiently stores UTXO commitments",
-      details: "Each UTXO becomes a leaf in the forest. Trees are combined when they reach the same height, maintaining logarithmic proof sizes."
+      description: "A set of perfect binary trees with 2ⁿ elements, where N elements require approximately log₂(N)/2 trees on average",
+      details: "The number and sizes of trees are determined by the binary representation of N: each 1-bit corresponds to a tree."
     },
     {
       icon: <Hash className="w-6 h-6" />,
-      title: "Accumulator Roots",
-      description: "A small set of root hashes that represent the entire UTXO set",
-      details: "Instead of storing millions of UTXOs, nodes only need to keep track of a few dozen root hashes."
+      title: "Accumulator State",
+      description: "Consists of root hashes and a leaf count, representing the current UTXO set state",
+      details: "The accumulator state requires O(log₂(N)) storage where N is the number of elements ever added to the set."
     },
     {
       icon: <Shield className="w-6 h-6" />,
       title: "Inclusion Proofs",
-      description: "Cryptographic proofs that verify a UTXO exists without the full set",
-      details: "Proofs contain only the sibling hashes needed to reconstruct the path to a root, typically just a few KB."
+      description: "Contains target positions and required hashes to verify membership in the accumulator",
+      details: "Proofs include target positions (uint64) and proof hashes needed to compute the roots, ordered by node positions."
     },
     {
       icon: <Zap className="w-6 h-6" />,
-      title: "Dynamic Updates",
-      description: "Efficiently add new UTXOs and remove spent ones from the accumulator",
-      details: "The forest structure allows for fast insertions and deletions while maintaining the compact representation."
+      title: "Three Operations",
+      description: "Addition, Verification, and Deletion operations maintain the accumulator state",
+      details: "Addition appends leaves, Verification checks inclusion proofs, and Deletion removes elements using valid proofs."
     }
   ];
 
   const benefits = [
     {
-      title: "Massive Storage Savings",
-      description: "Reduce UTXO set from ~5GB to just a few KB of root hashes",
+      title: "Compact Representation",
+      description: "O(log₂(N)) storage requirement instead of linear UTXO set storage",
       icon: <Database className="w-5 h-5 text-bitcoin-500" />
     },
     {
-      title: "Fast Initial Sync",
-      description: "New nodes can sync instantly with just the accumulator state",
+      title: "Logarithmic Proof Size",
+      description: "Inclusion proofs scale logarithmically with the number of elements",
       icon: <Zap className="w-5 h-5 text-bitcoin-500" />
     },
     {
-      title: "Lightweight Validation",
-      description: "Verify transactions with minimal computational overhead",
+      title: "Efficient Verification",
+      description: "Fast proof verification using SHA512/256 hash operations",
       icon: <CheckCircle className="w-5 h-5 text-bitcoin-500" />
     },
     {
-      title: "Preserved Security",
-      description: "Maintains Bitcoin's security model with cryptographic guarantees",
+      title: "Dynamic Updates",
+      description: "Supports addition and deletion operations on the accumulator",
       icon: <Shield className="w-5 h-5 text-bitcoin-500" />
     }
   ];
@@ -69,8 +69,8 @@ const EducationSection: React.FC = () => {
             </h2>
           </div>
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Learn how Utreexo revolutionizes Bitcoin's architecture by replacing the massive UTXO set
-            with a compact accumulator structure.
+            A cryptographic data structure that allows compact representation of the UTXO set,
+            enabling efficient membership proofs without storing the entire set.
           </p>
         </motion.div>
 
@@ -112,7 +112,7 @@ const EducationSection: React.FC = () => {
           className="mb-16"
         >
           <h3 className="text-2xl font-bold text-gray-50 text-center mb-12">
-            Why Utreexo Matters for Bitcoin
+            Technical Properties
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
@@ -150,21 +150,21 @@ const EducationSection: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-50">Stump</h3>
             </div>
             <p className="text-gray-400 mb-4">
-              A lightweight verifier that only stores root hashes and can verify inclusion proofs.
-              Perfect for mobile wallets and resource-constrained devices.
+              A lightweight implementation that maintains only the accumulator roots and leaf count.
+              Can verify inclusion proofs but cannot generate them.
             </p>
             <ul className="space-y-2 text-sm text-gray-500">
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Minimal storage requirements
+                Stores only root hashes and numleaves
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Fast proof verification
+                Supports Addition and Verification operations
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                No proof generation capability
+                Requires external proofs for Deletion
               </li>
             </ul>
           </div>
@@ -175,21 +175,21 @@ const EducationSection: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-50">Pollard</h3>
             </div>
             <p className="text-gray-400 mb-4">
-              A full accumulator that maintains the forest structure and can generate proofs.
-              Used by full nodes and bridge nodes in the Utreexo network.
+              A full implementation that maintains cached nodes from the Merkle forest,
+              enabling proof generation for any cached elements.
             </p>
             <ul className="space-y-2 text-sm text-gray-500">
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Full forest maintenance
+                Maintains subset of tree nodes
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Proof generation capability
+                Can generate inclusion proofs
               </li>
               <li className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                Higher storage requirements
+                Supports all three operations
               </li>
             </ul>
           </div>

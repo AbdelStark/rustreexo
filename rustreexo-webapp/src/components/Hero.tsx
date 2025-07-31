@@ -17,21 +17,21 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="mb-8"
           >
-            <div className="inline-flex items-center px-4 py-2 rounded-full glass-effect border border-bitcoin-500/20 text-bitcoin-400 text-sm font-medium mb-6 animate-pulse-slow">
+            <div className="inline-flex items-center px-4 py-2 rounded-full glass-effect border border-bitcoin-500/20 text-bitcoin-400 text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
-              Powered by WebAssembly + Rust
+              Reference Implementation
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-50 mb-6 leading-tight">
-              Bitcoin's Future is{' '}
+              Utreexo{' '}
               <span className="bg-gradient-to-r from-bitcoin-400 to-bitcoin-600 bg-clip-text text-transparent">
-                Compact
+                Accumulator
               </span>
             </h1>
             
             <p className="text-xl sm:text-2xl text-gray-400 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Explore Utreexo, the revolutionary accumulator that enables ultra-lightweight Bitcoin nodes
-              by compressing the entire UTXO set into just a few hashes.
+              A dynamic hash-based accumulator for Bitcoin's UTXO set, providing compact representation 
+              with logarithmic-sized inclusion proofs. Based on the draft BIP specification.
             </p>
           </motion.div>
 
@@ -41,14 +41,14 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
-            <button className="btn-primary text-lg px-8 py-4">
+            <a href="#demo" className="btn-primary text-lg px-8 py-4">
               <TreePine className="w-5 h-5 mr-2" />
-              Start Exploring
-            </button>
-            <button className="btn-outline text-lg px-8 py-4">
+              Try Demo
+            </a>
+            <a href="https://github.com/mit-dci/rustreexo" target="_blank" rel="noopener noreferrer" className="btn-outline text-lg px-8 py-4">
               <Database className="w-5 h-5 mr-2" />
-              View Implementation
-            </button>
+              View Source
+            </a>
           </motion.div>
 
           {/* Stats */}
@@ -59,16 +59,16 @@ const Hero: React.FC = () => {
             className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto"
           >
             <div className="card text-center">
-              <div className="text-3xl font-bold text-bitcoin-500 mb-2">~99%</div>
-              <div className="text-gray-400">Storage Reduction</div>
+              <div className="text-3xl font-bold text-bitcoin-500 mb-2">O(log₂ N)</div>
+              <div className="text-gray-400">Accumulator Size</div>
             </div>
             <div className="card text-center">
-              <div className="text-3xl font-bold text-bitcoin-500 mb-2">O(log n)</div>
-              <div className="text-gray-400">Proof Size</div>
+              <div className="text-3xl font-bold text-bitcoin-500 mb-2">SHA512/256</div>
+              <div className="text-gray-400">Hash Function</div>
             </div>
             <div className="card text-center">
-              <div className="text-3xl font-bold text-bitcoin-500 mb-2">32 bytes</div>
-              <div className="text-gray-400">Per Root Hash</div>
+              <div className="text-3xl font-bold text-bitcoin-500 mb-2">Merkle Forest</div>
+              <div className="text-gray-400">Data Structure</div>
             </div>
           </motion.div>
         </div>

@@ -33,6 +33,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   const [pollard, setPollard] = useState<Pollard | null>(null);
   const [newHashInput, setNewHashInput] = useState('');
   const [proofData, setProofData] = useState<string>('');
+  const [proofTargetHash, setProofTargetHash] = useState<string>(''); // Store the hash the proof was generated for
   const [verificationResult, setVerificationResult] = useState<{valid: boolean; error?: string} | null>(null);
 
   // Initialize accumulators
@@ -262,6 +263,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
       });
       
       setProofData(proof);
+      setProofTargetHash(targetHash); // Store the target hash for verification
       setPollardState(prev => ({ ...prev, isLoading: false }));
       
       alert(`Proof generated for hash: ${targetHash.substring(0, 8)}...${targetHash.substring(56)}`);
@@ -276,6 +278,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
       
       setPollardState(prev => ({ ...prev, isLoading: false, error: `Proof generation failed: ${error}` }));
       setProofData(`Error: ${error}`);
+      setProofTargetHash(''); // Clear target hash on error
     }
   };
 
@@ -298,31 +301,21 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
     console.log('🔧 [WASM] Proof data length:', proofData.length);
 
     try {
-      // Try to extract target hashes from proof data or use input hash
+      // Determine target hashes for verification
       let targetHashes: string[] = [];
       
-      console.log('🔧 [WASM] Parsing proof data...');
-      try {
-        const parsedProof = JSON.parse(proofData);
-        targetHashes = parsedProof.targets || [];
-        console.log('✅ [WASM] Parsed proof structure:', {
-          hasTargets: !!parsedProof.targets,
-          targetsCount: targetHashes.length,
-          hasProofField: !!parsedProof.proof,
-          proofType: typeof parsedProof.proof
-        });
-      } catch (parseError) {
-        console.warn('⚠️ [WASM] Failed to parse proof data as JSON:', parseError);
+      // First priority: use the stored target hash from proof generation
+      if (proofTargetHash && utils.isValidHash(proofTargetHash)) {
+        targetHashes = [proofTargetHash];
+        console.log('🔧 [WASM] Using stored target hash from proof generation:', proofTargetHash);
       }
-      
-      // If no targets in proof and we have an input hash, use that
-      if (targetHashes.length === 0 && newHashInput.trim() && utils.isValidHash(newHashInput)) {
+      // Second priority: use input hash if provided
+      else if (newHashInput.trim() && utils.isValidHash(newHashInput)) {
         targetHashes = [newHashInput];
         console.log('🔧 [WASM] Using input hash as target:', newHashInput);
-      }
-      
-      // If still no targets, try to use one of the roots
-      if (targetHashes.length === 0) {
+      } 
+      // Last resort: use one of the accumulator roots
+      else {
         const roots = accumulator.getRoots();
         console.log('🔧 [WASM] Current accumulator roots:', roots);
         

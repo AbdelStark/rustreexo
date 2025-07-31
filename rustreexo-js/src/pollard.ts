@@ -151,7 +151,20 @@ export class Pollard {
       const additionsJson = JSON.stringify(additions);
       this.wasmPollard.modify(proofJson, additionsJson, deleteHashes);
     } catch (error) {
-      throw new UtreexoError(`Failed to modify Pollard: ${error}`);
+      // Better error handling to preserve error details
+      let errorMessage = 'Failed to modify Pollard';
+      if (error instanceof Error) {
+        errorMessage += `: ${error.message}`;
+      } else if (typeof error === 'string') {
+        errorMessage += `: ${error}`;
+      } else if (error && typeof error === 'object') {
+        errorMessage += `: ${JSON.stringify(error)}`;
+      } else {
+        errorMessage += `: ${error}`;
+      }
+      
+      console.error('Raw WASM error in pollard.modify():', error);
+      throw new UtreexoError(errorMessage);
     }
   }
 
@@ -161,8 +174,8 @@ export class Pollard {
    * @param additions - Array of elements to add
    */
   async addElements(additions: PollardAddition[]): Promise<void> {
-    // For additions without deletions, we need an empty proof
-    const emptyProof = JSON.stringify({ proof: [], targets: [] });
+    // For additions without deletions, we need an empty proof with correct structure
+    const emptyProof = JSON.stringify({ targets: [], hashes: [] });
     await this.modify(emptyProof, additions, []);
   }
 

@@ -124,7 +124,20 @@ export class Stump {
       const proofJson = typeof proof === 'string' ? proof : JSON.stringify(proof);
       this.wasmStump.modify(proofJson, addHashes, deleteHashes);
     } catch (error) {
-      throw new UtreexoError(`Failed to modify Stump: ${error}`);
+      // Better error handling to preserve error details
+      let errorMessage = 'Failed to modify Stump';
+      if (error instanceof Error) {
+        errorMessage += `: ${error.message}`;
+      } else if (typeof error === 'string') {
+        errorMessage += `: ${error}`;
+      } else if (error && typeof error === 'object') {
+        errorMessage += `: ${JSON.stringify(error)}`;
+      } else {
+        errorMessage += `: ${error}`;
+      }
+      
+      console.error('Raw WASM error in stump.modify():', error);
+      throw new UtreexoError(errorMessage);
     }
   }
 
