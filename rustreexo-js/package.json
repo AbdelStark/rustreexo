@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/mit-dci/rustreexo",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/jest": "^29.5.0",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",

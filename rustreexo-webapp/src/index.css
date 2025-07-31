@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-dark-900 text-gray-100 font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-50;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bitcoin-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    @apply btn bg-bitcoin-500 text-white hover:bg-bitcoin-600 shadow-lg shadow-bitcoin-500/25;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-dark-700 text-gray-100 hover:bg-dark-600 border border-dark-600;
+  }
+  
+  .btn-outline {
+    @apply btn border border-bitcoin-500 text-bitcoin-400 hover:bg-bitcoin-500 hover:text-white;
+  }
+  
+  .card {
+    @apply bg-dark-800 border border-dark-700 rounded-xl shadow-xl shadow-black/20 p-6;
+  }
+  
+  .code-block {
+    @apply bg-dark-900 border border-dark-700 rounded-lg p-4 font-mono text-sm text-gray-300 overflow-x-auto;
+  }
+  
+  .hash-display {
+    @apply font-mono text-xs text-bitcoin-400 bg-dark-900 px-2 py-1 rounded border border-dark-700 break-all;
+  }
+  
+  .tree-node {
+    @apply w-8 h-8 rounded-full border-2 border-bitcoin-500 bg-bitcoin-500/10 flex items-center justify-center text-xs font-mono transition-all duration-200 hover:bg-bitcoin-500/20 hover:scale-110;
+  }
+  
+  .tree-edge {
+    @apply stroke-bitcoin-400 stroke-2 opacity-70;
+  }
+  
+  .gradient-bg {
+    @apply bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900;
+  }
+  
+  .glass-effect {
+    @apply backdrop-blur-sm bg-white/5 border border-white/10;
+  }
+}
