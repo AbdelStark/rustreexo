@@ -4,6 +4,7 @@ import { TreePine, Shield, Zap } from 'lucide-react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import AccumulatorDemo from './components/AccumulatorDemo';
+import ReferenceDemo from './components/ReferenceDemo';
 import TreeVisualization from './components/TreeVisualization';
 import EducationSection from './components/EducationSection';
 import Footer from './components/Footer';
@@ -73,7 +74,10 @@ function App() {
             </div>
 
             {/* Demo Content */}
-            <AccumulatorDemo activeTab={activeTab} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <AccumulatorDemo activeTab={activeTab} />
+              <ReferenceDemo />
+            </div>
           </div>
         </section>
 
