@@ -74,8 +74,19 @@ export class WasmStump {
     return true;
   }
 
-  modify(_proof: string, _addHashes: any[], _delHashes: any[]): void {
-    // Mock - no-op
+  modify(_proof: string, addHashes: string[], delHashes: string[]): void {
+    // Mock implementation that simulates adding and removing elements
+    this.leaves = this.leaves + addHashes.length - delHashes.length;
+    
+    // Simple mock: just add new hashes to roots for testing
+    if (addHashes.length > 0) {
+      this._roots.push(...addHashes);
+    }
+    
+    // Remove deleted hashes from roots
+    if (delHashes.length > 0) {
+      this._roots = this._roots.filter(root => !delHashes.includes(root));
+    }
   }
 
   free(): void {
@@ -105,13 +116,13 @@ export class WasmPollard {
   }
 
   batch_proof(_targets: any[]): string {
-    // Mock proof
-    return JSON.stringify({ proof: [], targets: [] });
+    // Mock proof with correct format
+    return JSON.stringify({ targets: [], hashes: [] });
   }
 
   prove_single(_hash: string): string {
-    // Mock proof
-    return JSON.stringify({ proof: [], targets: [] });
+    // Mock proof with correct format
+    return JSON.stringify({ targets: [], hashes: [] });
   }
 
   verify(_proof: string, _hashes: any[]): boolean {
@@ -119,8 +130,21 @@ export class WasmPollard {
     return true;
   }
 
-  modify(_proof: string, _additions: string, _delHashes: any[]): void {
-    // Mock - no-op
+  modify(_proof: string, additions: string, delHashes: string[]): void {
+    // Mock implementation that simulates adding and removing elements
+    const additionsParsed = JSON.parse(additions);
+    this.leaves = this.leaves + additionsParsed.length - delHashes.length;
+    
+    // Simple mock: add new hashes to roots for testing
+    if (additionsParsed.length > 0) {
+      const newHashes = additionsParsed.map((item: any) => item.hash);
+      this._roots.push(...newHashes);
+    }
+    
+    // Remove deleted hashes from roots
+    if (delHashes.length > 0) {
+      this._roots = this._roots.filter(root => !delHashes.includes(root));
+    }
   }
 
   free(): void {

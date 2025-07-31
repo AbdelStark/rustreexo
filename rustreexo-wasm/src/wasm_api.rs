@@ -189,9 +189,12 @@ impl WasmStump {
         let add_hashes = add_hashes?;
         let del_hashes = del_hashes?;
 
-        self.inner
+        let (new_stump, _update_data) = self.inner
             .modify(&add_hashes, &del_hashes, &proof)
             .map_err(|e| JsValue::from_str(&format!("Failed to modify stump: {}", e)))?;
+
+        // Update the inner stump with the new state
+        self.inner = new_stump;
 
         Ok(())
     }
