@@ -1,0 +1,53 @@
+{
+  "name": "@rustreexo/js",
+  "version": "0.4.0",
+  "description": "JavaScript/TypeScript SDK for Rustreexo - A dynamic accumulator for the UTXO set",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build:watch": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "utreexo",
+    "bitcoin",
+    "accumulator",
+    "cryptography",
+    "merkle-tree",
+    "wasm",
+    "typescript"
+  ],
+  "author": "Calvin Kim <calvin@kcalvinalvin.info>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mit-dci/rustreexo"
+  },
+  "homepage": "https://github.com/mit-dci/rustreexo",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "eslint": "^8.37.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@rustreexo/wasm": "file:../rustreexo-wasm/pkg"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "sideEffects": false
+}

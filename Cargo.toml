@@ -1,8 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "rustreexo-core",
+    "rustreexo-wasm",
+]
+
+# Maintain backward compatibility by re-exporting the core crate
 [package]
 name = "rustreexo"
 version = "0.4.0"
 authors = ["Calvin Kim <calvin@kcalvinalvin.info>"]
-edition = "2018"
+edition = "2021"
 description = "A Rust implementation of Utreexo"
 license = "MIT"
 repository = "https://github.com/mit-dci/rustreexo"
@@ -10,24 +18,11 @@ readme = "README.md"
 homepage = "https://github.com/mit-dci/rustreexo"
 rust-version = "1.63.0"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-bitcoin_hashes = "0.14"
-serde = { version = "1.0", features = ["derive"], optional = true }
-
-[dev-dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0.81"
+rustreexo-core = { path = "rustreexo-core" }
 
 [features]
-with-serde = ["serde"]
-default = []
+default = ["rustreexo-core/default"]
+with-serde = ["rustreexo-core/with-serde"]
 
-[[example]]
-name = "simple-stump-update"
-
-[[example]]
-name = "proof-update"
-
-[[example]]
-name = "custom-hash-type"
+# Examples are available in the rustreexo-core crate

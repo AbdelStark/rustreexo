@@ -1,0 +1,34 @@
+[package]
+name = "rustreexo-core"
+version = "0.4.0"
+authors = ["Calvin Kim <calvin@kcalvinalvin.info>"]
+edition = "2021"
+description = "Core Utreexo implementation - A Rust implementation of Utreexo"
+license = "MIT"
+repository = "https://github.com/mit-dci/rustreexo"
+homepage = "https://github.com/mit-dci/rustreexo"
+rust-version = "1.63.0"
+
+[dependencies]
+bitcoin_hashes = "0.14"
+serde = { version = "1.0", features = ["derive"], optional = true }
+
+[dev-dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.81"
+
+[features]
+with-serde = ["serde"]
+default = []
+
+[[example]]
+name = "simple-stump-update"
+
+[[example]]
+name = "proof-update"
+
+[[example]]
+name = "custom-hash-type"
+
+[[example]]
+name = "full-accumulator"
