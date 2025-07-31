@@ -10,7 +10,7 @@ export default defineConfig({
       name: 'wasm-support',
       configureServer(server) {
         // Set proper MIME type for WASM files
-        server.middlewares.use((req, res, next) => {
+        server.middlewares.use((req: any, res: any, next: any) => {
           if (req.url?.endsWith('.wasm')) {
             res.setHeader('Content-Type', 'application/wasm')
           }

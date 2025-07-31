@@ -27,19 +27,31 @@ const Header: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <a
               href="#education"
-              className="text-gray-300 hover:text-bitcoin-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('education')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-gray-300 hover:text-bitcoin-400 transition-colors cursor-pointer"
             >
               Learn
             </a>
             <a
               href="#demo"
-              className="text-gray-300 hover:text-bitcoin-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-gray-300 hover:text-bitcoin-400 transition-colors cursor-pointer"
             >
               Demo
             </a>
             <a
               href="#visualization"
-              className="text-gray-300 hover:text-bitcoin-400 transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('visualization')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-gray-300 hover:text-bitcoin-400 transition-colors cursor-pointer"
             >
               Visualize
             </a>

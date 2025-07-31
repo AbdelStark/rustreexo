@@ -90,29 +90,24 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // For this demo, we'll simulate adding by creating a new accumulator with more elements
-      // In a real implementation, you'd call accumulator.add([newHashInput])
-      
-      // Generate some demo data
-      const demoHashes = [newHashInput, utils.randomHash(), utils.randomHash()];
-      
-      if (activeTab === 'stump') {
-        // Stump doesn't support adding directly, so we'll create with initial data
-        const newStump = await Stump.create({ roots: demoHashes.slice(0, 2), leaves: demoHashes.length });
-        setStump(newStump);
+      if (activeTab === 'stump' && stump) {
+        // For Stump, we need a proof to add elements. For demo purposes, use empty proof
+        const emptyProof = JSON.stringify({ proof: [], targets: [] });
+        await stump.modify(emptyProof, [newHashInput], []);
+        
         setStumpState({
-          leaves: newStump.getLeafCount(),
-          roots: newStump.getRoots(),
+          leaves: stump.getLeafCount(),
+          roots: stump.getRoots(),
           isLoading: false,
           error: null
         });
-      } else {
-        // Pollard can be updated
-        const newPollard = await Pollard.create({ roots: demoHashes, leaves: demoHashes.length });
-        setPollard(newPollard);
+      } else if (activeTab === 'pollard' && pollard) {
+        // Pollard can add elements directly
+        await pollard.addElements([{ hash: newHashInput, remember: true }]);
+        
         setPollardState({
-          leaves: newPollard.getLeafCount(),
-          roots: newPollard.getRoots(),
+          leaves: pollard.getLeafCount(),
+          roots: pollard.getRoots(),
           isLoading: false,
           error: null
         });
@@ -168,23 +163,47 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
   };
 
   const generateProof = async () => {
-    if (activeTab !== 'pollard' || !pollard || !newHashInput.trim()) {
-      alert('Proof generation is only available for Pollard with a valid target hash');
+    if (activeTab !== 'pollard' || !pollard) {
+      alert('Proof generation is only available for Pollard accumulator');
       return;
     }
 
+    const roots = pollard.getRoots();
+    if (roots.length === 0) {
+      alert('No elements in the accumulator to generate proof for');
+      return;
+    }
+
+    setPollardState(prev => ({ ...prev, isLoading: true }));
+    
     try {
-      const proof = await pollard.generateBatchProof([newHashInput]);
+      // Generate proof for a specific hash or all roots
+      let targetHash: string;
+      let proof: string;
+      
+      if (newHashInput.trim() && utils.isValidHash(newHashInput)) {
+        // Generate proof for the specified hash
+        targetHash = newHashInput;
+        proof = await pollard.generateProof(targetHash);
+      } else {
+        // Generate proof for the first root as an example
+        targetHash = roots[0];
+        proof = await pollard.generateProof(targetHash);
+      }
+      
       setProofData(proof);
+      setPollardState(prev => ({ ...prev, isLoading: false }));
+      
+      alert(`Proof generated for hash: ${targetHash.substring(0, 8)}...${targetHash.substring(56)}`);
     } catch (error) {
-      console.error('Failed to generate proof:', error);
+      setPollardState(prev => ({ ...prev, isLoading: false, error: `Proof generation failed: ${error}` }));
       setProofData(`Error: ${error}`);
     }
   };
 
   const verifyProof = async () => {
-    if (!proofData.trim() || !newHashInput.trim()) {
-      alert('Please provide both proof data and target hash');
+    if (!proofData.trim()) {
+      alert('Please provide proof data to verify');
       return;
     }
 
@@ -192,7 +211,33 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
     if (!accumulator) return;
 
     try {
-      const result = await accumulator.verify(proofData, [newHashInput]);
+      // Try to extract target hashes from proof data or use input hash
+      let targetHashes: string[] = [];
+      
+      try {
+        const parsedProof = JSON.parse(proofData);
+        targetHashes = parsedProof.targets || [];
+      } catch {
+        // If parsing fails, continue with empty targets
+      }
+      
+      // If no targets in proof and we have an input hash, use that
+      if (targetHashes.length === 0 && newHashInput.trim() && utils.isValidHash(newHashInput)) {
+        targetHashes = [newHashInput];
+      }
+      
+      // If still no targets, try to use one of the roots
+      if (targetHashes.length === 0) {
+        const roots = accumulator.getRoots();
+        if (roots.length > 0) {
+          targetHashes = [roots[0]];
+        } else {
+          setVerificationResult({ valid: false, error: 'No target hashes available for verification' });
+          return;
+        }
+      }
+
+      const result = await accumulator.verify(proofData, targetHashes);
       setVerificationResult(result);
     } catch (error) {
       setVerificationResult({ valid: false, error: `Verification failed: ${error}` });
@@ -323,13 +368,22 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
           
           <div className="space-y-4">
             {activeTab === 'pollard' && (
-              <button
-                onClick={generateProof}
-                disabled={!newHashInput.trim() || !utils.isValidHash(newHashInput)}
-                className="btn-outline w-full"
-              >
-                Generate Proof
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={generateProof}
+                  disabled={pollardState.isLoading || pollardState.leaves === 0}
+                  className="btn-outline w-full"
+                >
+                  <Hash className="w-4 h-4 mr-2" />
+                  Generate Proof
+                </button>
+                <div className="text-xs text-gray-500">
+                  {newHashInput.trim() && utils.isValidHash(newHashInput) 
+                    ? `Will generate proof for: ${newHashInput.substring(0, 8)}...`
+                    : `Will generate proof for first element in accumulator`
+                  }
+                </div>
+              </div>
             )}
 
             <div>
@@ -344,7 +398,7 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
 
             <button
               onClick={verifyProof}
-              disabled={!proofData.trim() || !newHashInput.trim()}
+              disabled={!proofData.trim()}
               className="btn-primary w-full"
             >
               <CheckCircle className="w-4 h-4 mr-2" />
