@@ -283,11 +283,13 @@ pub fn is_ancestor(higher_pos: u64, lower_pos: u64, forest_rows: u8) -> Result<b
 }
 
 /// Returns whether next is node's sibling or not
+#[allow(dead_code)]
 pub fn is_right_sibling(node: u64, next: u64) -> bool {
     node | 1 == next
 }
 
 /// Returns whether a and b are sibling or not
+#[allow(dead_code)]
 fn is_sibling(a: u64, b: u64) -> bool {
     a ^ 1 == b
 }
