@@ -29,7 +29,7 @@ export class Stump {
   /**
    * Create a new empty Stump accumulator
    */
-  static async create(options: StumpOptions = {}): Promise<Stump> {
+  static async create(_options: StumpOptions = {}): Promise<Stump> {
     await Stump.ensureInitialized();
 
     try {
@@ -95,10 +95,11 @@ export class Stump {
       const proofJson = typeof proof === 'string' ? proof : JSON.stringify(proof);
       const valid = this.wasmStump.verify(proofJson, targetHashes);
       
-      return {
-        valid,
-        error: valid ? undefined : 'Proof verification failed'
-      };
+      if (valid) {
+        return { valid };
+      } else {
+        return { valid, error: 'Proof verification failed' };
+      }
     } catch (error) {
       return {
         valid: false,

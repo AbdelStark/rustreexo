@@ -1,4 +1,4 @@
-import { utils } from '../index.js';
+import { utils } from '../index';
 
 describe('utils', () => {
   const testHashHex = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';

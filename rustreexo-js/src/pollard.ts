@@ -121,10 +121,11 @@ export class Pollard {
       const proofJson = typeof proof === 'string' ? proof : JSON.stringify(proof);
       const valid = this.wasmPollard.verify(proofJson, targetHashes);
       
-      return {
-        valid,
-        error: valid ? undefined : 'Proof verification failed'
-      };
+      if (valid) {
+        return { valid };
+      } else {
+        return { valid, error: 'Proof verification failed' };
+      }
     } catch (error) {
       return {
         valid: false,

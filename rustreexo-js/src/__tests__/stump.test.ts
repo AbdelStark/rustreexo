@@ -1,4 +1,4 @@
-import { Stump, utils } from '../index.js';
+import { Stump } from '../index';
 
 describe('Stump', () => {
   test('should create empty stump', async () => {

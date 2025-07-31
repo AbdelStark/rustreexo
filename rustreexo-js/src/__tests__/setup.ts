@@ -1,7 +1,7 @@
 // Jest setup file for WASM module testing
 // This ensures the WASM module is properly initialized before tests run
 
-import { initWasm } from '../index.js';
+import { initWasm } from '../index';
 
 beforeAll(async () => {
   // Initialize the WASM module before running any tests

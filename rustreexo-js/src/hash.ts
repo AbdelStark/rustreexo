@@ -147,7 +147,7 @@ export class Hash implements HashUtils {
   /**
    * Compute parent hash from two child hashes (static utility)
    */
-  parentHash(left: HashString, right: HashString): HashString {
+  parentHash(_left: HashString, _right: HashString): HashString {
     // This is a sync wrapper - for async operations use the static method
     throw new UtreexoError('Use Hash.parentHash() static method for computing parent hashes');
   }
