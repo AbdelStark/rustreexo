@@ -116,25 +116,15 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
       console.log(`🔧 [WASM] Adding element to ${activeTab}:`, { hash: newHashInput });
       
       if (activeTab === 'stump' && stump) {
-        // For Stump, we need a proof to add elements. For demo purposes, use empty proof
-        const emptyProof = JSON.stringify({ proof: [], targets: [] });
-        console.log('🔧 [WASM] Calling stump.modify() with:', {
-          proof: emptyProof,
-          addHashes: [newHashInput],
-          deleteHashes: []
-        });
+        // Note: Stump accumulators are designed for verification, not direct modification
+        // without valid proofs. For demo purposes, we'll show a message about this limitation.
+        console.log('⚠️ [WASM] Stump requires valid proofs for modification');
         
-        await stump.modify(emptyProof, [newHashInput], []);
-        
-        const newState = {
-          leaves: stump.getLeafCount(),
-          roots: stump.getRoots(),
-          isLoading: false,
-          error: null
-        };
-        
-        console.log('✅ [WASM] stump.modify() -> Success. New state:', newState);
-        setStumpState(newState);
+        throw new Error(
+          'Stump accumulators require valid proofs to add elements. ' +
+          'In a real application, you would receive proofs from a full node. ' +
+          'For adding elements, please use the Pollard accumulator tab.'
+        );
       } else if (activeTab === 'pollard' && pollard) {
         // Pollard can add elements directly
         const additions = [{ hash: newHashInput, remember: true }];
@@ -499,40 +489,74 @@ const AccumulatorDemo: React.FC<AccumulatorDemoProps> = ({ activeTab }) => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="card"
         >
-          <h4 className="text-xl font-semibold text-gray-50 mb-4">Add Elements</h4>
+          <h4 className="text-xl font-semibold text-gray-50 mb-4">
+            {activeTab === 'stump' ? 'Stump Operations' : 'Add Elements'}
+          </h4>
           
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-2">Hash (32 bytes hex)</label>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={newHashInput}
-                  onChange={(e) => setNewHashInput(e.target.value)}
-                  placeholder="Enter 64-character hex hash..."
-                  className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-gray-100 text-sm font-mono focus:outline-none focus:border-bitcoin-500"
-                />
-                <button
-                  onClick={generateRandomHash}
-                  className="btn-secondary whitespace-nowrap"
-                >
-                  <Hash className="w-4 h-4 mr-1" />
-                  Random
-                </button>
+            {activeTab === 'stump' ? (
+              // Stump-specific UI
+              <div className="space-y-4">
+                <div className="p-4 border border-yellow-500/30 bg-yellow-500/10 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h5 className="text-yellow-400 font-medium mb-1">Stump Design</h5>
+                      <p className="text-yellow-200 text-sm">
+                        Stump accumulators are <strong>lightweight</strong> and designed for <strong>proof verification only</strong>. 
+                        They store only the accumulator roots and can verify proofs efficiently with minimal memory usage.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 border border-bitcoin-500/30 bg-bitcoin-500/10 rounded-lg">
+                  <h5 className="text-bitcoin-400 font-medium mb-2">Demo Workflow:</h5>
+                  <ol className="text-bitcoin-200 text-sm space-y-1 list-decimal list-inside">
+                    <li>Switch to <strong>Pollard</strong> tab to add elements</li>
+                    <li>Use <strong>Generate Proof</strong> to create a proof</li>
+                    <li>Return to <strong>Stump</strong> tab</li>
+                    <li>Paste the proof in the verification section</li>
+                    <li>Click <strong>Verify Proof</strong> to validate</li>
+                  </ol>
+                </div>
               </div>
-              {newHashInput && !utils.isValidHash(newHashInput) && (
-                <div className="text-red-400 text-xs mt-1">Invalid hash format</div>
-              )}
-            </div>
+            ) : (
+              // Pollard-specific UI
+              <>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Hash (32 bytes hex)</label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={newHashInput}
+                      onChange={(e) => setNewHashInput(e.target.value)}
+                      placeholder="Enter 64-character hex hash..."
+                      className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-gray-100 text-sm font-mono focus:outline-none focus:border-bitcoin-500"
+                    />
+                    <button
+                      onClick={generateRandomHash}
+                      className="btn-secondary whitespace-nowrap"
+                    >
+                      <Hash className="w-4 h-4 mr-1" />
+                      Random
+                    </button>
+                  </div>
+                  {newHashInput && !utils.isValidHash(newHashInput) && (
+                    <div className="text-red-400 text-xs mt-1">Invalid hash format</div>
+                  )}
+                </div>
 
-            <button
-              onClick={addToAccumulator}
-              disabled={currentState.isLoading || !newHashInput.trim() || !utils.isValidHash(newHashInput)}
-              className="btn-primary w-full"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add to {activeTab === 'stump' ? 'Stump' : 'Pollard'}
-            </button>
+                <button
+                  onClick={addToAccumulator}
+                  disabled={currentState.isLoading || !newHashInput.trim() || !utils.isValidHash(newHashInput)}
+                  className="btn-primary w-full"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add to Pollard
+                </button>
+              </>
+            )}
           </div>
         </motion.div>
 
