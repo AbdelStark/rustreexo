@@ -4,9 +4,9 @@
 //!
 //! # Example
 //! ```
-//! use rustreexo::accumulator::mem_forest::MemForest;
-//! use rustreexo::accumulator::node_hash::AccumulatorHash;
-//! use rustreexo::accumulator::node_hash::BitcoinNodeHash;
+//! use rustreexo_core::accumulator::mem_forest::MemForest;
+//! use rustreexo_core::accumulator::node_hash::AccumulatorHash;
+//! use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
 //!
 //! let values = vec![0, 1, 2, 3, 4, 5, 6, 7];
 //! let hashes: Vec<BitcoinNodeHash> = values
@@ -209,7 +209,7 @@ impl MemForest {
     /// want to use a different hash function, you can use [MemForest::new_with_hash].
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
     /// let mut mem_forest = MemForest::new();
     /// ```
     pub fn new() -> MemForest {
@@ -225,8 +225,8 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// Creates a new empty [MemForest] with a custom hash function.
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::mem_forest::MemForest;
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
     /// let mut MemForest = MemForest::<BitcoinNodeHash>::new();
     /// ```
     pub fn new_with_hash() -> MemForest<Hash> {
@@ -241,8 +241,8 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// or to disk.
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::mem_forest::MemForest;
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
     ///
     /// let mut mem_forest = MemForest::<BitcoinNodeHash>::new();
     /// let mut serialized = Vec::new();
@@ -269,8 +269,8 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// ```
     /// use std::io::Cursor;
     ///
-    /// use rustreexo::accumulator::mem_forest::MemForest;
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
     /// let mut serialized = Cursor::new(vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     /// let MemForest = MemForest::<BitcoinNodeHash>::deserialize(&mut serialized).unwrap();
     /// assert_eq!(MemForest.leaves, 0);
@@ -304,8 +304,8 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// and the hashes that we what to prove, but sorted by position in the tree.
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::mem_forest::MemForest;
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
     /// let mut mem_forest = MemForest::<BitcoinNodeHash>::new();
     /// let hashes = vec![0, 1, 2, 3, 4, 5, 6, 7]
     ///     .iter()
@@ -350,9 +350,9 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// use bitcoin_hashes::sha256::Hash as Data;
     /// use bitcoin_hashes::Hash;
     /// use bitcoin_hashes::HashEngine;
-    /// use rustreexo::accumulator::mem_forest::MemForest;
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-    /// use rustreexo::accumulator::node_hash::NodeHash;
+    /// use rustreexo_core::accumulator::mem_forest::MemForest;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::node_hash::NodeHash;
     /// let values = vec![0, 1, 2, 3, 4, 5, 6, 7];
     /// let hashes = values
     ///     .into_iter()

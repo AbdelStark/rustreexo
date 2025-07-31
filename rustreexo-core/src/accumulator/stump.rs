@@ -6,9 +6,9 @@
 //! ```
 //! use std::str::FromStr;
 //!
-//! use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-//! use rustreexo::accumulator::proof::Proof;
-//! use rustreexo::accumulator::stump::Stump;
+//! use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+//! use rustreexo_core::accumulator::proof::Proof;
+//! use rustreexo_core::accumulator::stump::Stump;
 //! // Create a new empty Stump
 //! let s = Stump::new();
 //! // The newly create outputs
@@ -71,7 +71,7 @@ impl Stump {
     /// Creates an empty Stump
     ///# Example
     /// ```
-    /// use rustreexo::accumulator::stump::Stump;
+    /// use rustreexo_core::accumulator::stump::Stump;
     /// let s = Stump::new();
     /// ```
     pub fn new() -> Self {
@@ -84,9 +84,9 @@ impl Stump {
     /// Serialize the Stump into a byte array
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-    /// use rustreexo::accumulator::proof::Proof;
-    /// use rustreexo::accumulator::stump::Stump;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::proof::Proof;
+    /// use rustreexo_core::accumulator::stump::Stump;
     /// let hashes = [0, 1, 2, 3, 4, 5, 6, 7]
     ///     .iter()
     ///     .map(|&el| BitcoinNodeHash::from([el; 32]))
@@ -120,9 +120,9 @@ impl Stump {
     /// Takes the ownership over `old_state`.
     ///# Example
     /// ```
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-    /// use rustreexo::accumulator::proof::Proof;
-    /// use rustreexo::accumulator::stump::Stump;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::proof::Proof;
+    /// use rustreexo_core::accumulator::stump::Stump;
     ///
     /// let s_old = Stump::new();
     /// let mut s_new = Stump::new();
@@ -169,9 +169,9 @@ impl<Hash: AccumulatorHash> Stump<Hash> {
     /// ```
     /// use std::str::FromStr;
     ///
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-    /// use rustreexo::accumulator::proof::Proof;
-    /// use rustreexo::accumulator::stump::Stump;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::proof::Proof;
+    /// use rustreexo_core::accumulator::stump::Stump;
     ///
     /// let s = Stump::new();
     /// let utxos = vec![BitcoinNodeHash::from_str(
@@ -229,9 +229,9 @@ impl<Hash: AccumulatorHash> Stump<Hash> {
     /// Deserialize the Stump from a Reader
     /// # Example
     /// ```
-    /// use rustreexo::accumulator::node_hash::BitcoinNodeHash;
-    /// use rustreexo::accumulator::proof::Proof;
-    /// use rustreexo::accumulator::stump::Stump;
+    /// use rustreexo_core::accumulator::node_hash::BitcoinNodeHash;
+    /// use rustreexo_core::accumulator::proof::Proof;
+    /// use rustreexo_core::accumulator::stump::Stump;
     /// let buffer = vec![
     ///     8, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 150, 124, 244, 241, 98, 69, 217, 222,
     ///     235, 97, 61, 137, 135, 76, 197, 134, 232, 173, 253, 8, 28, 17, 124, 123, 16, 4, 66, 30, 63,
