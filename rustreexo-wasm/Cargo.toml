@@ -1,7 +1,7 @@
 [package]
 name = "rustreexo-wasm"
 version = "0.4.0"
-authors = ["Calvin Kim <calvin@kcalvinalvin.info>"]
+authors = ["@AbdelStark"]
 edition = "2021"
 description = "WebAssembly bindings for Utreexo"
 license = "MIT"
@@ -26,11 +26,7 @@ bumpalo = "=3.4.0"
 
 [dependencies.web-sys]
 version = "0.3.55"
-features = [
-  "console",
-  "Performance",
-  "Window",
-]
+features = ["console", "Performance", "Window"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
