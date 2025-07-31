@@ -19,7 +19,7 @@ macro_rules! console_log {
 
 // Called when the WASM module is instantiated
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn wasm_main() {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
     
