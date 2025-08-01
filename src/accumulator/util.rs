@@ -52,35 +52,28 @@ pub fn calc_next_pos(position: u64, del_pos: u64, forest_rows: u8) -> Result<u64
 
 pub fn detwin(nodes: Vec<u64>, forest_rows: u8) -> Vec<u64> {
     let mut computed: Vec<u64> = nodes;
-    let mut detwinned = Vec::new();
+    let mut detwinned = Vec::with_capacity(computed.len());
+    let mut index = 0;
 
-    loop {
-        if computed.is_empty() {
-            break;
-        }
-
-        let node = computed.remove(0);
+    while index < computed.len() {
+        let node = computed[index];
         let sibling = node ^ 1;
-        let next = match computed.first() {
-            Some(next) => *next,
-            None => {
-                detwinned.push(node);
-                continue;
-            }
-        };
-
-        if next == sibling {
+        
+        // Check if next element is the sibling
+        if index + 1 < computed.len() && computed[index + 1] == sibling {
             let parent = parent(node, forest_rows);
-
-            if computed.binary_search(&parent).is_err() {
+            
+            // Only add parent if not already present
+            if !computed[index + 2..].contains(&parent) {
                 computed.push(parent);
             }
-
-            computed.remove(0);
-            continue;
+            
+            // Skip both nodes (current and sibling)
+            index += 2;
+        } else {
+            detwinned.push(node);
+            index += 1;
         }
-
-        detwinned.push(node);
     }
 
     detwinned
@@ -115,7 +108,7 @@ pub fn roots_to_destroy<Hash: AccumulatorHash>(
     }
 
     let mut roots = orig_roots.to_vec();
-    let mut deleted = vec![];
+    let mut deleted = Vec::with_capacity(num_adds.min(64) as usize);
     let mut h = 0;
     for add in 0..num_adds {
         while (num_leaves >> h) & 1 == 1 {

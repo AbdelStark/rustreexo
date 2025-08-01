@@ -270,16 +270,16 @@ impl<Hash: AccumulatorHash> Stump<Hash> {
         if del_hashes.is_empty() {
             return Ok((
                 vec![],
-                self.roots.iter().map(|root| (*root, *root)).collect(),
+                self.roots.iter().map(|root| (*root, *root)).collect::<Vec<_>>(),
             ));
         }
 
-        let del_hashes = del_hashes
-            .iter()
-            .map(|hash| (*hash, Hash::empty()))
-            .collect::<Vec<_>>();
+        let mut del_hash_pairs = Vec::with_capacity(del_hashes.len());
+        for hash in del_hashes {
+            del_hash_pairs.push((*hash, Hash::empty()));
+        }
 
-        proof.calculate_hashes_delete(&del_hashes, self.leaves)
+        proof.calculate_hashes_delete(&del_hash_pairs, self.leaves)
     }
 
     /// Adds new leaves into the root

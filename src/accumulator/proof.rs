@@ -330,8 +330,8 @@ impl<Hash: AccumulatorHash> Proof<Hash> {
 
         old_proof.extend(intermediate_positions);
 
-        let mut new_proof = Vec::new();
-        let mut missing_positions = Vec::new();
+        let mut new_proof = Vec::with_capacity(needed_positions.len());
+        let mut missing_positions = Vec::with_capacity(needed_positions.len() / 2);
         for pos in needed_positions {
             if old_proof.contains_key(&pos) {
                 new_proof.push((pos, *old_proof.get(&pos).unwrap()));
