@@ -189,24 +189,25 @@ impl<Hash: AccumulatorHash> Stump<Hash> {
         del_hashes: &[Hash],
         proof: &Proof<Hash>,
     ) -> Result<(Stump<Hash>, UpdateData<Hash>), String> {
-        let (intermediate, mut computed_roots) = self.remove(del_hashes, proof)?;
-        let mut new_roots = vec![];
+        let (intermediate, computed_roots) = self.remove(del_hashes, proof)?;
+        
+        // Convert to HashMap for O(1) lookups instead of O(n) position searches
+        let mut root_updates: std::collections::HashMap<Hash, Hash> = 
+            computed_roots.into_iter().collect();
+        
+        let mut new_roots = Vec::with_capacity(self.roots.len());
 
         for root in self.roots.iter() {
-            if let Some(pos) = computed_roots.iter().position(|(old, _new)| old == root) {
-                let (old_root, new_root) = computed_roots.remove(pos);
-                if old_root == *root {
-                    new_roots.push(new_root);
-                    continue;
-                }
+            if let Some(new_root) = root_updates.remove(root) {
+                new_roots.push(new_root);
+            } else {
+                new_roots.push(*root);
             }
-
-            new_roots.push(*root);
         }
 
         // If there are still roots to be added, it means that the proof is invalid
         // as we should have consumed all the roots.
-        if !computed_roots.is_empty() {
+        if !root_updates.is_empty() {
             return Err("Invalid proof".to_string());
         }
 

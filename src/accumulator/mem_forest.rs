@@ -317,7 +317,7 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
     /// //TODO: Verify the proof
     /// ```
     pub fn prove(&self, targets: &[Hash]) -> Result<Proof<Hash>, String> {
-        let mut positions = Vec::new();
+        let mut positions = Vec::with_capacity(targets.len());
         for target in targets {
             let node = self.map.get(target).ok_or("Could not find node")?;
             let position = self.get_pos(node)?;
