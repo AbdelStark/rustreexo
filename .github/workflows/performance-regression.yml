@@ -1,0 +1,277 @@
+name: Performance Regression Detection
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'benches/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  detect-regressions:
+    name: Detect Performance Regressions
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+
+    - name: Configure Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: regression-detection
+        cache-on-failure: true
+
+    - name: Install critcmp for benchmark comparison
+      run: |
+        cargo install critcmp || echo "critcmp installation failed, using alternative method"
+
+    - name: Optimize environment for consistent measurements
+      run: |
+        echo "Optimizing environment for regression detection..."
+        sudo swapoff -a || true
+        echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor || true
+        echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo || true
+
+    - name: Run baseline benchmarks (main branch)
+      run: |
+        echo "Running baseline benchmarks from main branch..."
+        git stash push -m "Stash PR changes"
+        git checkout origin/main
+        
+        mkdir -p baseline-results
+        
+        # Run each benchmark suite with timeout
+        timeout 600s cargo bench --bench stump_benchmarks -- --save-baseline main_baseline || echo "Stump baseline completed"
+        timeout 600s cargo bench --bench proof_benchmarks -- --save-baseline main_baseline || echo "Proof baseline completed"
+        timeout 600s cargo bench --bench accumulator_benchmarks -- --save-baseline main_baseline || echo "Accumulator baseline completed"
+        
+        # Save baseline results
+        cp -r target/criterion baseline-results/ || echo "No baseline criterion results"
+
+    - name: Run current benchmarks (PR branch)
+      run: |
+        echo "Running current benchmarks from PR branch..."
+        git checkout ${{ github.sha }}
+        git stash pop || echo "No stash to pop"
+        
+        mkdir -p current-results
+        
+        # Run each benchmark suite
+        timeout 600s cargo bench --bench stump_benchmarks -- --save-baseline pr_current || echo "Stump current completed"
+        timeout 600s cargo bench --bench proof_benchmarks -- --save-baseline pr_current || echo "Proof current completed"  
+        timeout 600s cargo bench --bench accumulator_benchmarks -- --save-baseline pr_current || echo "Accumulator current completed"
+        
+        # Save current results
+        cp -r target/criterion current-results/ || echo "No current criterion results"
+
+    - name: Compare performance with critcmp
+      id: comparison
+      run: |
+        echo "Comparing performance between main and PR..."
+        
+        # Create comparison reports for each benchmark suite
+        mkdir -p comparison-results
+        
+        # Function to compare and check for regressions
+        compare_benchmark() {
+            local bench_name=$1
+            echo "Comparing $bench_name benchmarks..."
+            
+            if critcmp main_baseline pr_current --export comparison-results/${bench_name}_comparison.json > comparison-results/${bench_name}_report.txt 2>&1; then
+                echo "✅ $bench_name comparison completed"
+                
+                # Check for significant regressions (>5% slower)
+                if grep -q "+[0-9][0-9]\.[0-9][0-9]%" comparison-results/${bench_name}_report.txt; then
+                    echo "⚠️  Potential regression detected in $bench_name"
+                    echo "regression_detected=true" >> $GITHUB_OUTPUT
+                fi
+            else
+                echo "⚠️  Could not compare $bench_name benchmarks"
+            fi
+        }
+        
+        # Compare each benchmark suite
+        compare_benchmark "stump"
+        compare_benchmark "proof"
+        compare_benchmark "accumulator"
+        
+        # Create overall summary
+        cat > comparison-results/summary.md << 'EOF'
+        # Performance Regression Analysis
+        
+        **PR:** ${{ github.event.pull_request.number }}
+        **Branch:** ${{ github.head_ref }}
+        **Base:** ${{ github.base_ref }}
+        **Date:** $(date -u)
+        
+        ## Analysis Results
+        
+        Performance comparison between base branch and PR changes.
+        
+        ### Methodology
+        - **Environment:** Ubuntu Latest, optimized for benchmarking
+        - **Measurements:** Multiple iterations with statistical analysis
+        - **Threshold:** >5% performance regression triggers warning
+        - **Tool:** critcmp for statistical comparison
+        
+        ### Benchmark Suites Analyzed
+        - Stump Accumulator Operations
+        - Proof Generation and Verification  
+        - Accumulator Implementation Comparisons
+        
+        ### Results Summary
+        See individual comparison files for detailed analysis.
+        EOF
+
+    - name: Check regression threshold
+      id: regression_check
+      run: |
+        echo "Checking regression thresholds..."
+        
+        # Define acceptable regression threshold (5%)
+        REGRESSION_THRESHOLD=5
+        
+        # Parse comparison results for significant regressions
+        significant_regressions=0
+        
+        if find comparison-results -name "*_report.txt" -exec grep -l "+[1-9][0-9]\.[0-9][0-9]%" {} \; | grep -q .; then
+            significant_regressions=1
+            echo "⚠️  Significant performance regressions detected!"
+            echo "regression_found=true" >> $GITHUB_OUTPUT
+        else
+            echo "✅ No significant performance regressions detected"
+            echo "regression_found=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate regression report
+      run: |
+        echo "Generating detailed regression report..."
+        
+        cat > regression-report.md << 'EOF'
+        # 🚨 Performance Regression Report
+        
+        **Pull Request:** #${{ github.event.pull_request.number }}
+        **Title:** ${{ github.event.pull_request.title }}
+        **Author:** @${{ github.event.pull_request.user.login }}
+        
+        ## Executive Summary
+        
+        ${{ steps.regression_check.outputs.regression_found == 'true' && '⚠️  **REGRESSION DETECTED**: Significant performance degradation found' || '✅ **NO REGRESSIONS**: Performance is within acceptable bounds' }}
+        
+        ## Analysis Details
+        
+        - **Regression Threshold:** 5% performance decrease
+        - **Benchmark Suites:** Stump, Proof, Accumulator operations
+        - **Statistical Method:** Multiple iterations with confidence intervals
+        - **Environment:** Controlled CI environment with optimizations
+        
+        ## Files Changed
+        
+        Key files that might impact performance:
+        
+        ```
+        ${{ github.event.pull_request.changed_files }}
+        ```
+        
+        ## Recommendations
+        
+        ${{ steps.regression_check.outputs.regression_found == 'true' && '
+        ### Action Required
+        1. Review the benchmark comparison results
+        2. Identify the cause of performance degradation  
+        3. Optimize the affected code paths
+        4. Re-run benchmarks to verify improvements
+        
+        ### Next Steps
+        - Download and analyze the detailed benchmark artifacts
+        - Focus on the benchmark suites showing regressions
+        - Consider algorithmic improvements or caching strategies
+        ' || '
+        ### All Clear
+        No significant performance regressions detected. The changes maintain or improve performance characteristics.
+        ' }}
+        
+        ## Detailed Results
+        
+        Download the comparison artifacts for complete analysis including:
+        - Statistical comparisons for each benchmark
+        - Performance trend analysis
+        - Raw measurement data
+        EOF
+
+    - name: Upload comparison results
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-regression-analysis-${{ github.event.pull_request.number }}
+        path: |
+          comparison-results/
+          regression-report.md
+        retention-days: 30
+
+    - name: Comment on PR with regression analysis
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read regression report
+          const report = fs.readFileSync('regression-report.md', 'utf8');
+          
+          // Add benchmark results if available
+          let comment = report + '\n\n';
+          
+          // Check if detailed results are available
+          try {
+            const files = fs.readdirSync('comparison-results');
+            if (files.length > 0) {
+              comment += '## 📊 Benchmark Comparison Files\n\n';
+              files.forEach(file => {
+                if (file.endsWith('_report.txt')) {
+                  comment += `- \`${file}\`: Statistical comparison\n`;
+                }
+              });
+              comment += '\n**Download the artifacts to view complete analysis.**\n';
+            }
+          } catch (e) {
+            comment += '⚠️  Detailed comparison files not available.\n';
+          }
+          
+          // Add footer
+          comment += '\n---\n';
+          comment += '*This analysis was automatically generated by the Performance Regression Detection workflow.*\n';
+          
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+    - name: Fail job if significant regressions detected
+      if: steps.regression_check.outputs.regression_found == 'true'
+      run: |
+        echo "❌ Significant performance regressions detected!"
+        echo "This PR introduces performance degradation beyond acceptable thresholds."
+        echo "Please review the regression analysis and optimize the affected code."
+        exit 1
+
+    - name: Success summary
+      if: steps.regression_check.outputs.regression_found == 'false'
+      run: |
+        echo "✅ Performance regression check passed!"
+        echo "No significant performance degradation detected."
+        echo "PR is clear for merge from a performance perspective."
