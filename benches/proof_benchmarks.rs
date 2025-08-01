@@ -74,48 +74,6 @@ fn proof_verification(c: &mut Criterion) {
     group.finish();
 }
 
-fn proof_serialization(c: &mut Criterion) {
-    let mut group = c.benchmark_group("proof_serialization");
-
-    for target_count in [10].iter() {
-        let targets: Vec<u64> = (0..*target_count).collect();
-        let proof_hashes = generate_test_hashes((*target_count * 3) as usize, 42);
-        let proof = Proof::new(targets, proof_hashes);
-
-        group.throughput(Throughput::Elements(*target_count as u64));
-
-        // Serialize benchmark
-        group.bench_with_input(
-            BenchmarkId::new("serialize", target_count),
-            &proof,
-            |b, proof| {
-                b.iter(|| {
-                    let mut buffer = Vec::new();
-                    let result = proof.serialize(black_box(&mut buffer));
-                    black_box(result.unwrap());
-                    black_box(buffer)
-                });
-            },
-        );
-
-        // Deserialize benchmark
-        let mut serialize_buffer = Vec::new();
-        proof.serialize(&mut serialize_buffer).unwrap();
-
-        group.bench_with_input(
-            BenchmarkId::new("deserialize", target_count),
-            &serialize_buffer,
-            |b, buffer| {
-                b.iter(|| {
-                    let cursor = std::io::Cursor::new(black_box(buffer.clone()));
-                    let result = Proof::<BitcoinNodeHash>::deserialize(cursor);
-                    black_box(result.unwrap())
-                });
-            },
-        );
-    }
-    group.finish();
-}
 
 fn proof_subset_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_subset");
@@ -209,7 +167,6 @@ criterion_group!(
     benches,
     proof_creation,
     proof_verification,
-    proof_serialization,
     proof_subset_operations,
     proof_update_operations,
     proof_memory_efficiency

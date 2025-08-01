@@ -165,55 +165,6 @@ fn pollard_basic_operations(c: &mut Criterion) {
     group.finish();
 }
 
-fn accumulator_serialization_comparison(c: &mut Criterion) {
-    let mut group = c.benchmark_group("accumulator_serialization");
-
-    let size = 1000;
-    let hashes = generate_test_hashes(size, 42);
-
-    // Setup accumulators
-    let mut forest = MemForest::new();
-    forest.modify(&hashes, &[]).unwrap();
-
-    let stump = Stump::new();
-    let (stump, _) = stump.modify(&hashes, &[], &Proof::default()).unwrap();
-
-    let pollard = Pollard::from_roots(hashes[..5].to_vec(), size as u64);
-
-    group.throughput(Throughput::Elements(size as u64));
-
-    // MemForest serialization
-    group.bench_function("memforest_serialize", |b| {
-        b.iter(|| {
-            let mut buffer = Vec::new();
-            let result = forest.serialize(black_box(&mut buffer));
-            black_box(result.unwrap());
-            black_box(buffer)
-        });
-    });
-
-    // Stump serialization
-    group.bench_function("stump_serialize", |b| {
-        b.iter(|| {
-            let mut buffer = Vec::new();
-            let result = stump.serialize(black_box(&mut buffer));
-            black_box(result.unwrap());
-            black_box(buffer)
-        });
-    });
-
-    // Pollard serialization
-    group.bench_function("pollard_serialize", |b| {
-        b.iter(|| {
-            let mut buffer = Vec::new();
-            let result = pollard.serialize(black_box(&mut buffer));
-            let _ = black_box(result); // May error in simplified setup
-            black_box(buffer)
-        });
-    });
-
-    group.finish();
-}
 
 fn accumulator_memory_comparison(c: &mut Criterion) {
     let mut group = c.benchmark_group("accumulator_memory_usage");
@@ -280,7 +231,6 @@ criterion_group!(
     memforest_verification,
     pollard_operations,
     pollard_basic_operations,
-    accumulator_serialization_comparison,
     accumulator_memory_comparison
 );
 criterion_main!(benches);

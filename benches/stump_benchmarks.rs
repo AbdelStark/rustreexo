@@ -103,42 +103,6 @@ fn stump_verify(c: &mut Criterion) {
     group.finish();
 }
 
-fn stump_serialization(c: &mut Criterion) {
-    let mut group = c.benchmark_group("stump_serialization");
-
-    for size in [1, 10, 100].iter() {
-        let hashes = generate_test_hashes(*size, 42);
-        let stump = Stump::new();
-        let (stump, _) = stump.modify(&hashes, &[], &Proof::default()).unwrap();
-
-        group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(BenchmarkId::new("serialize", size), &stump, |b, stump| {
-            b.iter(|| {
-                let mut buffer = Vec::new();
-                let result = stump.serialize(black_box(&mut buffer));
-                black_box(result.unwrap());
-                black_box(buffer)
-            });
-        });
-
-        // Benchmark deserialization
-        let mut serialize_buffer = Vec::new();
-        stump.serialize(&mut serialize_buffer).unwrap();
-
-        group.bench_with_input(
-            BenchmarkId::new("deserialize", size),
-            &serialize_buffer,
-            |b, buffer| {
-                b.iter(|| {
-                    let cursor = std::io::Cursor::new(black_box(buffer.clone()));
-                    let result = Stump::<BitcoinNodeHash>::deserialize(cursor);
-                    black_box(result.unwrap())
-                });
-            },
-        );
-    }
-    group.finish();
-}
 
 fn stump_memory_usage(c: &mut Criterion) {
     let mut group = c.benchmark_group("stump_memory_growth");
@@ -174,7 +138,6 @@ criterion_group!(
     stump_modify_add_only,
     stump_modify_mixed_operations,
     stump_verify,
-    stump_serialization,
     stump_memory_usage
 );
 criterion_main!(benches);
