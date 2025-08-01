@@ -98,7 +98,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           echo "Installing benchmark dependencies..."
-          brew install gnuplot || true
+          brew install gnuplot coreutils || true
           
       - name: Optimize environment for benchmarking (macOS)
         if: runner.os == 'macOS'
@@ -120,49 +120,38 @@ jobs:
 
       - name: Run Stump benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'stump' || github.event.inputs.benchmark_suite == '' }}
+        timeout-minutes: 15
         run: |
           echo "Running Stump accumulator benchmarks..."
           mkdir -p benchmark-results
-          if timeout 900s cargo bench --bench stump_benchmarks; then
-            echo "✅ Stump benchmarks completed successfully"
-          else
-            echo "❌ Stump benchmarks failed"
-            exit 1
-          fi
+          cargo bench --bench stump_benchmarks
+          echo "✅ Stump benchmarks completed successfully"
 
       - name: Run Proof benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'proof' || github.event.inputs.benchmark_suite == '' }}
+        timeout-minutes: 15
         run: |
           echo "Running Proof operation benchmarks..."
           mkdir -p benchmark-results
-          if timeout 900s cargo bench --bench proof_benchmarks; then
-            echo "✅ Proof benchmarks completed successfully"
-          else
-            echo "❌ Proof benchmarks failed"
-            exit 1
-          fi
+          cargo bench --bench proof_benchmarks
+          echo "✅ Proof benchmarks completed successfully"
 
       - name: Run Accumulator comparison benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'accumulator' || github.event.inputs.benchmark_suite == '' }}
+        timeout-minutes: 15
         run: |
           echo "Running Accumulator comparison benchmarks..."
           mkdir -p benchmark-results
-          if timeout 900s cargo bench --bench accumulator_benchmarks; then
-            echo "✅ Accumulator benchmarks completed successfully"
-          else
-            echo "❌ Accumulator benchmarks failed"
-            exit 1
-          fi
+          cargo bench --bench accumulator_benchmarks
+          echo "✅ Accumulator benchmarks completed successfully"
 
       - name: Run all benchmarks with HTML report generation
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == '' }}
+        timeout-minutes: 30
         run: |
           echo "Generating comprehensive HTML reports..."
-          if timeout 1800s cargo bench; then
-            echo "✅ Full benchmark suite with HTML reports completed successfully"
-          else
-            echo "⚠️ HTML report generation completed with warnings or timeout"
-          fi
+          cargo bench
+          echo "✅ Full benchmark suite with HTML reports completed successfully"
 
       - name: Generate performance summary
         run: |

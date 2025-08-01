@@ -53,6 +53,7 @@ jobs:
         sudo apt-get install -y gnuplot
         
     - name: Run baseline benchmarks (main branch)
+      timeout-minutes: 20
       run: |
         echo "Running baseline benchmarks from main branch..."
         git stash push -m "Stash PR changes"
@@ -60,32 +61,21 @@ jobs:
         
         mkdir -p baseline-results
         
-        # Run each benchmark suite with timeout and proper error handling
-        if timeout 600s cargo bench --bench stump_benchmarks; then
-          echo "✅ Stump baseline completed"
-        else
-          echo "❌ Stump baseline failed"
-          exit 1
-        fi
+        # Run each benchmark suite
+        cargo bench --bench stump_benchmarks
+        echo "✅ Stump baseline completed"
         
-        if timeout 600s cargo bench --bench proof_benchmarks; then
-          echo "✅ Proof baseline completed"
-        else
-          echo "❌ Proof baseline failed"
-          exit 1
-        fi
+        cargo bench --bench proof_benchmarks
+        echo "✅ Proof baseline completed"
         
-        if timeout 600s cargo bench --bench accumulator_benchmarks; then
-          echo "✅ Accumulator baseline completed"
-        else
-          echo "❌ Accumulator baseline failed"
-          exit 1
-        fi
+        cargo bench --bench accumulator_benchmarks
+        echo "✅ Accumulator baseline completed"
         
         # Save baseline results
         cp -r target/criterion baseline-results/ || echo "No baseline criterion results"
 
     - name: Run current benchmarks (PR branch)
+      timeout-minutes: 20
       run: |
         echo "Running current benchmarks from PR branch..."
         git checkout ${{ github.sha }}
@@ -93,27 +83,15 @@ jobs:
         
         mkdir -p current-results
         
-        # Run each benchmark suite with proper error handling
-        if timeout 600s cargo bench --bench stump_benchmarks; then
-          echo "✅ Stump current completed"
-        else
-          echo "❌ Stump current failed"
-          exit 1
-        fi
+        # Run each benchmark suite
+        cargo bench --bench stump_benchmarks
+        echo "✅ Stump current completed"
         
-        if timeout 600s cargo bench --bench proof_benchmarks; then
-          echo "✅ Proof current completed"
-        else
-          echo "❌ Proof current failed"
-          exit 1
-        fi
+        cargo bench --bench proof_benchmarks
+        echo "✅ Proof current completed"
         
-        if timeout 600s cargo bench --bench accumulator_benchmarks; then
-          echo "✅ Accumulator current completed"
-        else
-          echo "❌ Accumulator current failed"
-          exit 1
-        fi
+        cargo bench --bench accumulator_benchmarks
+        echo "✅ Accumulator current completed"
         
         # Save current results
         cp -r target/criterion current-results/ || echo "No current criterion results"
