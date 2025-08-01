@@ -48,3 +48,4 @@ harness = false
 [[bench]]
 name = "stump_benchmarks"
 harness = false
+

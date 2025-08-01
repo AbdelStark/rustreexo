@@ -38,6 +38,12 @@ jobs:
       with:
         key: performance-monitoring
 
+    - name: Install dependencies
+      run: |
+        echo "Installing benchmark dependencies..."
+        sudo apt-get update
+        sudo apt-get install -y gnuplot
+        
     - name: Optimize environment
       run: |
         echo "Optimizing environment for performance monitoring..."
@@ -49,8 +55,15 @@ jobs:
         echo "Running comprehensive performance benchmarks..."
         mkdir -p monitoring-results
         
-        # Run all benchmark suites with detailed output
-        timeout 1800s cargo bench -- --output-format json | tee monitoring-results/full_benchmark_$(date +%Y%m%d_%H%M%S).json || echo "Benchmarks completed"
+        # Run all benchmark suites with proper error handling
+        if timeout 1800s cargo bench; then
+          echo "✅ Comprehensive benchmarks completed successfully"
+          echo "benchmark_success=true" >> $GITHUB_OUTPUT
+        else
+          echo "❌ Comprehensive benchmarks failed"
+          echo "benchmark_success=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
 
     - name: Download historical performance data
       uses: actions/download-artifact@v4

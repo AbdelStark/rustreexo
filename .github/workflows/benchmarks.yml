@@ -74,6 +74,13 @@ jobs:
           echo "Memory: $(free -h 2>/dev/null || echo 'N/A on macOS')"
           echo "Disk space: $(df -h . | tail -1)"
 
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'  
+        run: |
+          echo "Installing benchmark dependencies..."
+          sudo apt-get update
+          sudo apt-get install -y gnuplot
+          
       - name: Optimize environment for benchmarking (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -87,6 +94,12 @@ jobs:
           # Set process scheduler
           echo "Set high priority scheduling..."
 
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          echo "Installing benchmark dependencies..."
+          brew install gnuplot || true
+          
       - name: Optimize environment for benchmarking (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -100,37 +113,56 @@ jobs:
           cargo check --benches --verbose
           echo "Benchmarks compile successfully ✅"
 
-      - name: Run simple compatibility benchmark
+      - name: Run quick benchmark check
         run: |
-          echo "Running simple compatibility benchmark..."
-          timeout 300s cargo bench --bench simple_benchmark || echo "Simple benchmark completed with timeout"
+          echo "Running quick benchmark compilation check..."
+          cargo bench --bench stump_benchmarks --help > /dev/null || echo "Benchmark help completed"
 
       - name: Run Stump benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'stump' || github.event.inputs.benchmark_suite == '' }}
         run: |
           echo "Running Stump accumulator benchmarks..."
           mkdir -p benchmark-results
-          timeout 900s cargo bench --bench stump_benchmarks -- --output-format json | tee benchmark-results/stump_results.json || echo "Stump benchmarks completed"
+          if timeout 900s cargo bench --bench stump_benchmarks; then
+            echo "✅ Stump benchmarks completed successfully"
+          else
+            echo "❌ Stump benchmarks failed"
+            exit 1
+          fi
 
       - name: Run Proof benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'proof' || github.event.inputs.benchmark_suite == '' }}
         run: |
           echo "Running Proof operation benchmarks..."
           mkdir -p benchmark-results
-          timeout 900s cargo bench --bench proof_benchmarks -- --output-format json | tee benchmark-results/proof_results.json || echo "Proof benchmarks completed"
+          if timeout 900s cargo bench --bench proof_benchmarks; then
+            echo "✅ Proof benchmarks completed successfully"
+          else
+            echo "❌ Proof benchmarks failed"
+            exit 1
+          fi
 
       - name: Run Accumulator comparison benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'accumulator' || github.event.inputs.benchmark_suite == '' }}
         run: |
           echo "Running Accumulator comparison benchmarks..."
           mkdir -p benchmark-results
-          timeout 900s cargo bench --bench accumulator_benchmarks -- --output-format json | tee benchmark-results/accumulator_results.json || echo "Accumulator benchmarks completed"
+          if timeout 900s cargo bench --bench accumulator_benchmarks; then
+            echo "✅ Accumulator benchmarks completed successfully"
+          else
+            echo "❌ Accumulator benchmarks failed"
+            exit 1
+          fi
 
       - name: Run all benchmarks with HTML report generation
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == '' }}
         run: |
           echo "Generating comprehensive HTML reports..."
-          timeout 1800s cargo bench -- --output-format html || echo "Full benchmark suite completed"
+          if timeout 1800s cargo bench; then
+            echo "✅ Full benchmark suite with HTML reports completed successfully"
+          else
+            echo "⚠️ HTML report generation completed with warnings or timeout"
+          fi
 
       - name: Generate performance summary
         run: |
@@ -169,10 +201,14 @@ jobs:
       - name: Collect benchmark artifacts
         run: |
           echo "Collecting benchmark artifacts..."
+          
+          # Use the benchmark collection script
+          ./collect_benchmark_results.sh benchmark-results
+          
           mkdir -p artifacts
 
-          # Copy JSON results
-          cp -r benchmark-results/* artifacts/ 2>/dev/null || echo "No JSON results to copy"
+          # Copy collected results
+          cp -r benchmark-results/* artifacts/ 2>/dev/null || echo "No benchmark results to copy"
 
           # Copy HTML reports
           cp -r target/criterion artifacts/html-reports 2>/dev/null || echo "No HTML reports to copy"
@@ -184,6 +220,8 @@ jobs:
           echo "Archive created: $(date)" > artifacts/archive-info.txt
           echo "Commit: ${{ github.sha }}" >> artifacts/archive-info.txt
           echo "Branch: ${{ github.ref_name }}" >> artifacts/archive-info.txt
+          echo "Workflow: ${{ github.workflow }}" >> artifacts/archive-info.txt
+          echo "Run number: ${{ github.run_number }}" >> artifacts/archive-info.txt
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
