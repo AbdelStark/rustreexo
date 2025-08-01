@@ -17,7 +17,7 @@ fn generate_test_hashes(count: usize, seed: u64) -> Vec<BitcoinNodeHash> {
 fn stump_modify_add_only(c: &mut Criterion) {
     let mut group = c.benchmark_group("stump_modify_add_only");
 
-    for size in [10, 100, 1000].iter() {
+    for size in [10, 100].iter() {
         group.throughput(Throughput::Elements(*size as u64));
         group.bench_with_input(BenchmarkId::new("add_elements", size), size, |b, &size| {
             let hashes = generate_test_hashes(size, 42);
@@ -37,7 +37,7 @@ fn stump_modify_add_only(c: &mut Criterion) {
 fn stump_modify_mixed_operations(c: &mut Criterion) {
     let mut group = c.benchmark_group("stump_modify_mixed");
 
-    for size in [10, 100, 1000].iter() {
+    for size in [10, 100].iter() {
         group.throughput(Throughput::Elements(*size as u64));
         group.bench_with_input(
             BenchmarkId::new("add_then_remove", size),

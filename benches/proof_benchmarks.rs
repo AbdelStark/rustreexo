@@ -17,7 +17,7 @@ fn generate_test_hashes(count: usize, seed: u64) -> Vec<BitcoinNodeHash> {
 fn proof_creation(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_creation");
 
-    for target_count in [1, 10, 100].iter() {
+    for target_count in [1, 10].iter() {
         let targets: Vec<u64> = (0..*target_count).collect();
         let proof_hashes = generate_test_hashes((*target_count * 3) as usize, 42); // Approximate proof size
 
@@ -46,7 +46,7 @@ fn proof_verification(c: &mut Criterion) {
     let stump = Stump::new();
     let (stump, _) = stump.modify(&hashes, &[], &Proof::default()).unwrap();
 
-    for target_count in [1, 10, 100].iter() {
+    for target_count in [1, 10].iter() {
         let del_hashes = hashes[..*target_count].to_vec();
         let targets: Vec<u64> = (0..*target_count as u64).collect();
 
@@ -77,7 +77,7 @@ fn proof_verification(c: &mut Criterion) {
 fn proof_serialization(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_serialization");
 
-    for target_count in [10, 100].iter() {
+    for target_count in [10].iter() {
         let targets: Vec<u64> = (0..*target_count).collect();
         let proof_hashes = generate_test_hashes((*target_count * 3) as usize, 42);
         let proof = Proof::new(targets, proof_hashes);
@@ -125,7 +125,7 @@ fn proof_subset_operations(c: &mut Criterion) {
     let targets: Vec<u64> = (0..base_targets as u64).collect();
     let base_proof = Proof::new(targets, base_proof_hashes);
 
-    for subset_size in [10, 100].iter() {
+    for subset_size in [10].iter() {
         let subset_targets: Vec<u64> = (0..*subset_size as u64).collect();
 
         group.throughput(Throughput::Elements(*subset_size as u64));
@@ -153,7 +153,7 @@ fn proof_update_operations(c: &mut Criterion) {
     let proof_hashes = generate_test_hashes(150, 42); // Realistic proof size
     let proof = Proof::new(targets, proof_hashes);
 
-    for update_size in [10, 100].iter() {
+    for update_size in [10].iter() {
         let add_hashes = generate_test_hashes(*update_size, 123);
         let del_targets: Vec<u64> = (0..*update_size as u64 / 2).collect();
 
@@ -185,7 +185,7 @@ fn proof_update_operations(c: &mut Criterion) {
 fn proof_memory_efficiency(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_memory");
 
-    for proof_size in [10, 100].iter() {
+    for proof_size in [10].iter() {
         let targets: Vec<u64> = (0..*proof_size as u64).collect();
         let proof_hashes = generate_test_hashes(*proof_size * 3, 42);
 

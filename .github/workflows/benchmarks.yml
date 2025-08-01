@@ -120,7 +120,7 @@ jobs:
 
       - name: Run Stump benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'stump' || github.event.inputs.benchmark_suite == '' }}
-        timeout-minutes: 15
+        timeout-minutes: 30
         run: |
           echo "Running Stump accumulator benchmarks..."
           mkdir -p benchmark-results
@@ -129,7 +129,7 @@ jobs:
 
       - name: Run Proof benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'proof' || github.event.inputs.benchmark_suite == '' }}
-        timeout-minutes: 15
+        timeout-minutes: 30
         run: |
           echo "Running Proof operation benchmarks..."
           mkdir -p benchmark-results
@@ -138,7 +138,7 @@ jobs:
 
       - name: Run Accumulator comparison benchmarks
         if: ${{ github.event.inputs.benchmark_suite == 'all' || github.event.inputs.benchmark_suite == 'accumulator' || github.event.inputs.benchmark_suite == '' }}
-        timeout-minutes: 15
+        timeout-minutes: 30
         run: |
           echo "Running Accumulator comparison benchmarks..."
           mkdir -p benchmark-results

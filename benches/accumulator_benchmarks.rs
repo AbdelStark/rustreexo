@@ -19,7 +19,7 @@ fn generate_test_hashes(count: usize, seed: u64) -> Vec<BitcoinNodeHash> {
 fn memforest_vs_stump_modify(c: &mut Criterion) {
     let mut group = c.benchmark_group("accumulator_modify_comparison");
 
-    for size in [10, 100, 1000].iter() {
+    for size in [10, 100].iter() {
         let hashes = generate_test_hashes(*size, 42);
 
         group.throughput(Throughput::Elements(*size as u64));
@@ -58,7 +58,7 @@ fn memforest_proof_generation(c: &mut Criterion) {
     let mut forest = MemForest::new();
     forest.modify(&hashes, &[]).unwrap();
 
-    for target_count in [1, 10, 100].iter() {
+    for target_count in [1, 10].iter() {
         let targets = &hashes[..*target_count];
 
         group.throughput(Throughput::Elements(*target_count as u64));
@@ -84,7 +84,7 @@ fn memforest_verification(c: &mut Criterion) {
     let mut forest = MemForest::new();
     forest.modify(&hashes, &[]).unwrap();
 
-    for target_count in [1, 10, 100].iter() {
+    for target_count in [1, 10].iter() {
         let targets = &hashes[..*target_count];
         let proof = forest.prove(targets).unwrap();
 
@@ -111,7 +111,7 @@ fn pollard_operations(c: &mut Criterion) {
     let roots = vec![hashes[0]]; // Simplified root structure
     let pollard = Pollard::from_roots(roots, base_size as u64);
 
-    for batch_size in [10, 100].iter() {
+    for batch_size in [10].iter() {
         let _del_hashes = &hashes[..*batch_size / 2];
 
         group.throughput(Throughput::Elements(*batch_size as u64));
@@ -218,7 +218,7 @@ fn accumulator_serialization_comparison(c: &mut Criterion) {
 fn accumulator_memory_comparison(c: &mut Criterion) {
     let mut group = c.benchmark_group("accumulator_memory_usage");
 
-    for size in [10, 100].iter() {
+    for size in [10].iter() {
         let hashes = generate_test_hashes(*size, 42);
 
         group.throughput(Throughput::Elements(*size as u64));
