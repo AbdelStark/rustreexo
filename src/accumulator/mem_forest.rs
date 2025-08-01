@@ -411,7 +411,7 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
         if let (Some(node), Some(sibling), Some(parent)) = (n, sibling, parent) {
             return Ok((node, sibling, parent));
         }
-        Err(format!("node {} not found", pos))
+        Err(format!("node {pos} not found"))
     }
 
     fn del(&mut self, targets: &[Hash]) -> Result<(), String> {
@@ -434,7 +434,7 @@ impl<Hash: AccumulatorHash> MemForest<Hash> {
                     self.del_single(&target.upgrade().unwrap());
                 }
                 None => {
-                    return Err(format!("node {} not in the forest", target));
+                    return Err(format!("node {target} not in the forest"));
                 }
             }
         }
@@ -694,7 +694,6 @@ mod test {
     use std::vec;
 
     use bitcoin_hashes::sha256::Hash as Data;
-    use bitcoin_hashes::Hash;
     use bitcoin_hashes::HashEngine;
     use serde::Deserialize;
 
@@ -885,7 +884,7 @@ mod test {
             .iter()
             .map(|root| root.data.get())
             .collect::<Vec<_>>();
-        assert_eq!(expected_roots, roots, "Test case failed {:?}", case);
+        assert_eq!(expected_roots, roots, "Test case failed {case:?}");
     }
 
     fn run_case_with_deletion(case: TestCase) {
@@ -916,7 +915,7 @@ mod test {
             .iter()
             .map(|root| root.data.get())
             .collect::<Vec<_>>();
-        assert_eq!(expected_roots, roots, "Test case failed {:?}", case);
+        assert_eq!(expected_roots, roots, "Test case failed {case:?}");
     }
 
     #[test]

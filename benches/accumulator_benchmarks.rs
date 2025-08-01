@@ -76,7 +76,8 @@ fn pollard_operations(c: &mut Criterion) {
     let roots = vec![hashes[0]]; // Simplified root structure
     let pollard = Pollard::from_roots(roots, base_size as u64);
 
-    for batch_size in [10].iter() {
+    {
+        let batch_size = &10;
         let _del_hashes = &hashes[..*batch_size / 2];
 
         group.throughput(Throughput::Elements(*batch_size as u64));

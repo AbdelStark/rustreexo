@@ -15,6 +15,7 @@ fn generate_test_hashes(count: usize, seed: u64) -> Vec<BitcoinNodeHash> {
         .collect()
 }
 
+#[allow(clippy::unnecessary_cast)]
 fn proof_creation(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_creation");
 
@@ -38,6 +39,7 @@ fn proof_creation(c: &mut Criterion) {
     group.finish();
 }
 
+#[allow(clippy::unnecessary_cast)]
 fn proof_verification(c: &mut Criterion) {
     let mut group = c.benchmark_group("proof_verification");
 

@@ -179,10 +179,10 @@ impl<Hash: AccumulatorHash> PartialEq for PollardError<Hash> {
 impl<Hash: AccumulatorHash> Debug for PollardError<Hash> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            PollardError::NodeNotFound(hash) => write!(f, "Node not found: {}", hash),
-            PollardError::PositionNotFound(pos) => write!(f, "Position not found: {}", pos),
+            PollardError::NodeNotFound(hash) => write!(f, "Node not found: {hash}"),
+            PollardError::PositionNotFound(pos) => write!(f, "Position not found: {pos}"),
             PollardError::InvalidProof => write!(f, "Invalid proof"),
-            PollardError::IO(err) => write!(f, "IO error: {}", err),
+            PollardError::IO(err) => write!(f, "IO error: {err}"),
             PollardError::CouldNotUpgradeNode => {
                 write!(f, "Could not upgrade node, this is probably a bug")
             }
@@ -199,7 +199,7 @@ impl<Hash: AccumulatorHash> Debug for PollardError<Hash> {
 
 impl<Hash: AccumulatorHash> std::fmt::Display for PollardError<Hash> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -1476,7 +1476,7 @@ mod tests {
         let roots = p.roots().iter().copied().rev().collect::<Vec<_>>();
 
         assert_eq!(roots.len(), case.expected_roots.len());
-        assert_eq!(expected_roots, roots, "Test case failed {:?}", case);
+        assert_eq!(expected_roots, roots, "Test case failed {case:?}");
     }
 
     fn run_case_with_deletion(case: TestCase) {
@@ -1524,7 +1524,7 @@ mod tests {
 
         let roots = p.roots().iter().copied().rev().collect::<Vec<_>>();
         assert_eq!(roots.len(), case.expected_roots.len());
-        assert_eq!(expected_roots, roots, "Test case failed {:?}", case);
+        assert_eq!(expected_roots, roots, "Test case failed {case:?}");
     }
 
     #[test]
@@ -1719,7 +1719,7 @@ mod tests {
         let left = root.left_niece().unwrap();
         let right = root.right_niece().unwrap();
 
-        assert_eq!(p.get_pos(&Rc::downgrade(&root)), Ok(28));
+        assert_eq!(p.get_pos(&Rc::downgrade(root)), Ok(28));
         assert_eq!(p.get_pos(&Rc::downgrade(&left)), Ok(24));
         assert_eq!(p.get_pos(&Rc::downgrade(&right)), Ok(25));
     }

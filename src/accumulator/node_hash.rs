@@ -54,7 +54,6 @@ use std::str::FromStr;
 use bitcoin_hashes::hex;
 use bitcoin_hashes::sha256;
 use bitcoin_hashes::sha512_256;
-use bitcoin_hashes::Hash;
 use bitcoin_hashes::HashEngine;
 #[cfg(feature = "with-serde")]
 use serde::Deserialize;
@@ -116,9 +115,9 @@ impl Display for BitcoinNodeHash {
         if let BitcoinNodeHash::Some(ref inner) = self {
             let mut s = String::new();
             for byte in inner.iter() {
-                s.push_str(&format!("{:02x}", byte));
+                s.push_str(&format!("{byte:02x}"));
             }
-            write!(f, "{}", s)
+            write!(f, "{s}")
         } else {
             write!(f, "empty")
         }
@@ -133,9 +132,9 @@ impl Debug for BitcoinNodeHash {
             BitcoinNodeHash::Some(ref inner) => {
                 let mut s = String::new();
                 for byte in inner.iter() {
-                    s.push_str(&format!("{:02x}", byte));
+                    s.push_str(&format!("{byte:02x}"));
                 }
-                write!(f, "{}", s)
+                write!(f, "{s}")
             }
         }
     }
