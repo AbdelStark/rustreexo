@@ -34,45 +34,6 @@ fn stump_modify_add_only(c: &mut Criterion) {
     group.finish();
 }
 
-fn stump_modify_mixed_operations(c: &mut Criterion) {
-    let mut group = c.benchmark_group("stump_modify_mixed");
-
-    for size in [10, 100].iter() {
-        group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("add_then_remove", size),
-            size,
-            |b, &size| {
-                let add_hashes = generate_test_hashes(size, 42);
-                let remove_count = size / 2;
-                let remove_hashes = add_hashes[..remove_count].to_vec();
-                let empty_proof = Proof::default();
-
-                b.iter(|| {
-                    // First add all elements
-                    let stump = Stump::new();
-                    let (stump, _) = stump
-                        .modify(
-                            black_box(&add_hashes),
-                            black_box(&[]),
-                            black_box(&empty_proof),
-                        )
-                        .unwrap();
-
-                    // Then remove half of them
-                    let result = stump.modify(
-                        black_box(&[]),
-                        black_box(&remove_hashes),
-                        black_box(&empty_proof),
-                    );
-                    black_box(result.unwrap())
-                });
-            },
-        );
-    }
-    group.finish();
-}
-
 fn stump_verify(c: &mut Criterion) {
     let mut group = c.benchmark_group("stump_verify");
 
@@ -103,41 +64,5 @@ fn stump_verify(c: &mut Criterion) {
     group.finish();
 }
 
-
-fn stump_memory_usage(c: &mut Criterion) {
-    let mut group = c.benchmark_group("stump_memory_growth");
-
-    for size in [1, 10, 100].iter() {
-        group.throughput(Throughput::Elements(*size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("accumulate_elements", size),
-            size,
-            |b, &size| {
-                b.iter(|| {
-                    let mut stump = Stump::new();
-                    let batch_size = 100;
-
-                    for batch_start in (0..size).step_by(batch_size) {
-                        let batch_end = (batch_start + batch_size).min(size);
-                        let hashes =
-                            generate_test_hashes(batch_end - batch_start, batch_start as u64);
-                        let result = stump.modify(&hashes, &[], &Proof::default());
-                        stump = black_box(result.unwrap().0);
-                    }
-
-                    black_box(stump)
-                });
-            },
-        );
-    }
-    group.finish();
-}
-
-criterion_group!(
-    benches,
-    stump_modify_add_only,
-    stump_modify_mixed_operations,
-    stump_verify,
-    stump_memory_usage
-);
+criterion_group!(benches, stump_modify_add_only, stump_verify);
 criterion_main!(benches);
